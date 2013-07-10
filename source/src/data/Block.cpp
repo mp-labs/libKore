@@ -211,7 +211,7 @@ QVariant Block::DefaultBlockProperty( kint property )
     case Block::BlockPropertiesName:
         {
             QHash< QString, QVariant > result;
-            result.insert( "blockName", tr( "Name:" ) );
+            result.insert( "blockName", tr( "Name" ) );
             return result;
         }
     default:

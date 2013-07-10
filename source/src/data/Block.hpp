@@ -92,9 +92,9 @@ public:
 
     enum Properties
     {
-        BlockTypeName = 0x1,
-        BlockPropertiesName,
-        BlockSettings,
+        BlockTypeName = 1,      //! Pretty name for the type
+        BlockPropertiesName,    //! Pretty name for the properties
+        BlockSettings,          //! Settings for the block (default values...)
         MAX_PROPERTY
     };
 

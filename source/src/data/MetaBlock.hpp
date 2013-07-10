@@ -55,9 +55,9 @@ protected:
     virtual void library( Kore::data::Library* lib );
 
 public:
-    virtual bool canUnload() const = K_NULL; // Loadable !!
+    virtual bool canUnload() const = K_VIRTUAL;
 
-    virtual Block* createBlock() const = K_NULL;
+    virtual Block* createBlock() const = K_VIRTUAL;
     template< typename T >
     T* createBlockT() const { return static_cast< T* >( createBlock() ); }
 
@@ -65,7 +65,7 @@ public:
 
     QString blockClassName() const;
 
-    virtual QVariant blockProperty( kint property ) const = K_NULL;
+    virtual QVariant blockProperty( kint property ) const = K_VIRTUAL;
     QVariant blockSetting( const QString& setting,
                            const QVariant& defaultValue ) const;
 

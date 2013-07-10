@@ -27,22 +27,26 @@
 
 using namespace Kore::data;
 
-template<typename T>
-LibraryT<T>::LibraryT(kuint extraFlags) : Library(extraFlags) {
-
+template< typename T >
+LibraryT< T >::LibraryT( kuint64 extraFlags )
+    : Library( extraFlags )
+{
 }
 
-template<typename T>
-LibraryT<T>::~LibraryT() {
+template< typename T >
+LibraryT< T >::~LibraryT()
+{
 	// Nothing
 }
 
-template<typename T>
-const T* LibraryT<T>::constAt(kint i) const {
-	return static_cast<const T*>(Library::at(i));
+template< typename T >
+const T* LibraryT< T >::constAt( kint i ) const
+{
+    return static_cast< const T* >( Library::at( i ) );
 }
 
-template<typename T>
-T* LibraryT<T>::at(kint i) {
-	return static_cast<T*>(Library::at(i));
+template< typename T >
+T* LibraryT< T >::at( kint i )
+{
+    return static_cast< T* >( Library::at( i ) );
 }

@@ -63,7 +63,7 @@ void BlockExtension::registerWithMetaBlock( MetaBlock* mb )
     mb->registerBlockExtension( this );
 }
 
-void BlockExtension::unregisterWithMetaBlock(MetaBlock* mb)
+void BlockExtension::unregisterWithMetaBlock( MetaBlock* mb )
 {
     mb->unregisterBlockExtension( this );
     _registrations.removeOne( mb );

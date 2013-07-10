@@ -39,7 +39,7 @@ K_BLOCK_END
 
 using namespace Kore::data;
 
-Library::Library( kuint extraFlags )
+Library::Library( kuint64 extraFlags )
 {
     // By default a library is browsable
     addFlag( Browsable );

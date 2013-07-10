@@ -42,7 +42,7 @@ class KoreExport Library : public Block
     K_BLOCK
 
 public:
-    Library( kuint extraFlags = 0 );
+    Library( kuint64 extraFlags = 0 );
 
     virtual bool destroy();
 

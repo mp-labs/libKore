@@ -37,7 +37,7 @@ template< typename T >
 class LibraryT : public Library {
 
 public:
-    LibraryT( kuint extraFlags = 0 );
+    LibraryT( kuint64 extraFlags = 0 );
     virtual ~LibraryT();
 
     const T* constAt( kint i ) const;
