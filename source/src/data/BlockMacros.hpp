@@ -47,45 +47,93 @@
 // subclass
 #include "MetaBlock.hpp"
 
-#define K_BLOCK_BEGIN \
+#ifndef K_BLOCK_BASE_META_TYPE
+#   define K_BLOCK_BASE_META_TYPE   Kore::data::MetaBlock
+#endif
+
+#ifndef K_BLOCK_METHOD_EXTRAS
+#   define K_BLOCK_METHOD_EXTRAS
+#endif
+
+#ifdef K_BLOCK_ALLOCABLE
+#   define __K_BLOCK_METHOD_CREATE \
+        virtual Kore::data::Block* createBlock() const\
+        {\
+            Kore::data::Block* b = new K_BLOCK_TYPE;\
+            if( NULL != b )\
+            {\
+                InitializeBlock( b );\
+                SetBlockAllocated( b );\
+                blockInstancesCount.ref();\
+            }\
+            return b;\
+        }
+#else
+#   define __K_BLOCK_METHOD_CREATE \
+        virtual Kore::data::Block* createBlock() const\
+        {\
+            qFatal( "Can not instantiate virtual block "\
+                    K_BLOCK_XSTR( K_BLOCK_TYPE ) );\
+            return K_NULL;\
+        }
+#endif
+
+#ifdef K_BLOCK_METHOD_PROPERTY
+#   define __K_BLOCK_METHOD_PROPERTY \
+    virtual QVariant blockProperty( kint id ) const\
+    {\
+        return ( K_BLOCK_PROPERTY_METHOD )( id );\
+    }
+#else
+#   define __K_BLOCK_METHOD_PROPERTY \
+    virtual QVariant blockProperty( kint id ) const\
+    {\
+        return Kore::data::Block::DefaultBlockProperty( id );\
+    }
+#endif
+
+#define K_BLOCK_IMPLEMENTATION \
     namespace\
     {\
         QBasicAtomicInt blockInstancesCount = Q_BASIC_ATOMIC_INITIALIZER( 0 );\
         \
-        class PrivateMetaBlock : public Kore::data::MetaBlock\
+        class PrivateMetaBlock : public K_BLOCK_BASE_META_TYPE\
         {\
         public:\
-            PrivateMetaBlock();\
-            virtual bool canUnload() const;\
-            virtual Kore::data::Block* createBlock() const;\
-            virtual void destroyBlock( Kore::data::Block* b ) const;\
-            virtual QVariant blockProperty( kint property ) const;\
+            PrivateMetaBlock()\
+                : K_BLOCK_BASE_META_TYPE(\
+                        K_BLOCK_SUPER_TYPE::StaticMetaBlock(),\
+                        & ( K_BLOCK_TYPE::staticMetaObject ) )\
+            {\
+                addFlag( Block::Static );\
+            }\
+            \
+            virtual bool canUnload() const\
+            {\
+                return 0 == blockInstancesCount.load();\
+            }\
+            \
+            __K_BLOCK_METHOD_CREATE\
+            \
+            virtual void destroyBlock( Kore::data::Block* b ) const\
+            {\
+                MetaBlock::destroyBlock( b );\
+                blockInstancesCount.deref();\
+            }\
+            \
+            __K_BLOCK_METHOD_PROPERTY\
+            \
             static Kore::plugin::Loadable* Instance();\
+            \
             static bool _Registered;\
+            \
+            K_BLOCK_METHOD_EXTRAS\
         };\
     }\
     \
     Q_GLOBAL_STATIC( PrivateMetaBlock, globalMetaBlock );\
     \
     namespace {\
-        PrivateMetaBlock::PrivateMetaBlock()\
-            : MetaBlock( K_BLOCK_SUPER_TYPE::StaticMetaBlock(),\
-                         & ( K_BLOCK_TYPE::staticMetaObject ) )\
-        {\
-            addFlag( Block::Static );\
-        }\
-        \
-        bool PrivateMetaBlock::canUnload() const\
-        {\
-            return 0 == blockInstancesCount.load();\
-        }\
-        \
-        void PrivateMetaBlock::destroyBlock( Kore::data::Block* b ) const\
-        {\
-            MetaBlock::destroyBlock( b );\
-            blockInstancesCount.deref();\
-        }\
-        \
         Kore::plugin::Loadable* PrivateMetaBlock::Instance()\
         {\
             return globalMetaBlock;\
@@ -105,53 +153,4 @@
     const Kore::data::MetaBlock* K_BLOCK_TYPE::metaBlock() const\
     {\
         return StaticMetaBlock();\
-    }
-
-#define K_BLOCK_END
-
-// Instantiation
-#define K_BLOCK_VIRTUAL \
-    namespace\
-    {\
-        Kore::data::Block* PrivateMetaBlock::createBlock() const\
-        {\
-            qFatal( "Can not instantiate virtual block "\
-                    K_BLOCK_XSTR( K_BLOCK_TYPE ) );\
-            return K_NULL;\
-        }\
-    }
-
-#define K_BLOCK_ALLOCABLE \
-    namespace\
-    {\
-        Kore::data::Block* PrivateMetaBlock::createBlock() const\
-        {\
-            Kore::data::Block* b = new K_BLOCK_TYPE;\
-            if( NULL != b )\
-            {\
-                InitializeBlock( b );\
-                SetBlockAllocated( b );\
-                blockInstancesCount.ref();\
-            }\
-            return b;\
-        }\
-    }
-
-// Properties
-#define K_BLOCK_PROPERTY_METHOD( propertyMethod ) \
-    namespace\
-    {\
-        QVariant PrivateMetaBlock::blockProperty( int id ) const\
-        {\
-            return propertyMethod( id );\
-        }\
-    }
-
-#define K_BLOCK_PROPERTY_DEFAULT \
-    namespace\
-    {\
-        QVariant PrivateMetaBlock::blockProperty( int id ) const\
-        {\
-            return Kore::data::Block::DefaultBlockProperty( id );\
-        }\
     }

@@ -29,13 +29,11 @@
 
 #include <KoreModule.hpp>
 
-#define K_BLOCK_SUPER_TYPE  Kore::data::Block
-#define K_BLOCK_TYPE        Kore::data::Library
+#define K_BLOCK_SUPER_TYPE      Kore::data::Block
+#define K_BLOCK_TYPE            Kore::data::Library
+#define K_BLOCK_PROPERTY_METHOD Kore::data::Library::LibraryProperty
 #include <data/BlockMacros.hpp>
-K_BLOCK_BEGIN
-    K_BLOCK_VIRTUAL
-    K_BLOCK_PROPERTY_METHOD( Kore::data::Library::LibraryProperty )
-K_BLOCK_END
+K_BLOCK_IMPLEMENTATION
 
 using namespace Kore::data;
 
