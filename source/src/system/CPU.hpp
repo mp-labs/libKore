@@ -27,7 +27,7 @@
 
 #pragma once
 
-#include <KoreExport.hpp>
+#include <KoreMacros.hpp>
 #include <KoreTypes.hpp>
 
 namespace Kore { namespace system {
@@ -39,66 +39,66 @@ namespace Kore { namespace system {
 class KoreExport CPU {
 
 public:
-	/*!
-	 * @brief Constructor of the CPU class.
-	 */
-	CPU();
-	/*!
-	 * @brief Destructor of the CPU class.
-	 */
-	~CPU();
+    /*!
+     * @brief Constructor of the CPU class.
+     */
+    CPU();
+    /*!
+     * @brief Destructor of the CPU class.
+     */
+    ~CPU();
 
-	/*!
-	 * @brief Gets the number of CPUs of the computer.
-	 */
-	ksize	getCPUsCount() const;
-	/*!
+    /*!
+     * @brief Gets the number of CPUs of the computer.
+     */
+    ksize	getCPUsCount() const;
+    /*!
      * @brief Returns true if CPUs are MMX (MultiMedia eXtensions)
      *        compliant, false otherwise.
-	 */
-	kbool	isMMXEnabled() const;
-	/*!
+     */
+    kbool	isMMXEnabled() const;
+    /*!
      * @brief Returns true if CPUs are SSE (Streaming SIMD Extensions)
      *        compliant, false otherwise.
-	 */
-	kbool	isSSEEnabled() const;
-	/*!
-	 * @brief Returns true if CPUs are SSE2 compliant, false otherwise.
-	 */
-	kbool	isSSE2Enabled() const;
-	/*!
-	 * @brief Returns true if CPUs are SSE3 compliant, false otherwise.
-	 */
-	kbool	isSSE3Enabled() const;
-	/*!
-	 * @brief Returns true if CPUs are SSE4 compliant, false otherwise.
-	 */
-	kbool	isSSE4Enabled() const;
-	/*!
-	 * @brief Returns true if CPUs are 3DNow compliant, false otherwise.
-	 */
-	kbool	is3DNowEnabled() const;
-	/*!
-	 * @brief Returns true if CPUs are 3DNowEx compliant, false otherwise.
-	 */
-	kbool	is3DNow2Enabled() const;
-	/*!
-	 * @brief Gets the vendor's name of CPUs.
-	 */
-	const kchar* getVendorString() const;
+     */
+    kbool	isSSEEnabled() const;
+    /*!
+     * @brief Returns true if CPUs are SSE2 compliant, false otherwise.
+     */
+    kbool	isSSE2Enabled() const;
+    /*!
+     * @brief Returns true if CPUs are SSE3 compliant, false otherwise.
+     */
+    kbool	isSSE3Enabled() const;
+    /*!
+     * @brief Returns true if CPUs are SSE4 compliant, false otherwise.
+     */
+    kbool	isSSE4Enabled() const;
+    /*!
+     * @brief Returns true if CPUs are 3DNow compliant, false otherwise.
+     */
+    kbool	is3DNowEnabled() const;
+    /*!
+     * @brief Returns true if CPUs are 3DNowEx compliant, false otherwise.
+     */
+    kbool	is3DNow2Enabled() const;
+    /*!
+     * @brief Gets the vendor's name of CPUs.
+     */
+    const kchar* getVendorString() const;
 
 private:
-	void init();
+    void init();
 
-	ksize	_cpusCount;
-	kbool	_MMX;
-	kbool	_SSE;
-	kbool	_SSE2;
-	kbool	_SSE3;
-	kbool	_SSE4;
-	kbool	_3DNow;
-	kbool	_3DNow2;
-	kchar	_vendorString[12+1];
+    ksize	_cpusCount;
+    kbool	_MMX;
+    kbool	_SSE;
+    kbool	_SSE2;
+    kbool	_SSE3;
+    kbool	_SSE4;
+    kbool	_3DNow;
+    kbool	_3DNow2;
+    kchar	_vendorString[12+1];
 };
 
 }}
