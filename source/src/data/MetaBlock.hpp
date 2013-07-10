@@ -27,8 +27,6 @@
 
 #pragma once
 
-#include <KoreExport.hpp>
-
 #include <plugin/Loadable.hpp>
 
 #include <QtCore/QMetaClassInfo>

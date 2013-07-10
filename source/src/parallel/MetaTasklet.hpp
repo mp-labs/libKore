@@ -27,8 +27,6 @@
 
 #pragma once
 
-#include <KoreExport.hpp>
-
 #include <data/MetaBlock.hpp>
 
 namespace Kore {

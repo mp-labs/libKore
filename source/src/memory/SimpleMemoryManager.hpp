@@ -27,8 +27,6 @@
 
 #pragma once
 
-#include <KoreExport.hpp>
-
 #include <memory/MemoryManager.hpp>
 
 namespace Kore { namespace memory {

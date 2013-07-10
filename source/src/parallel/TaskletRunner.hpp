@@ -27,8 +27,6 @@
 
 #pragma once
 
-#include <KoreExport.hpp>
-
 #include <data/Block.hpp>
 
 namespace Kore { namespace parallel {

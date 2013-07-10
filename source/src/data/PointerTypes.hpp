@@ -29,7 +29,7 @@
 
 #include <QtCore/QMetaType>
 
-#include <KoreExport.hpp>
+#include <KoreMacros.hpp>
 
 namespace Kore { namespace data {
 

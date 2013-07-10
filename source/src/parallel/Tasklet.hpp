@@ -27,8 +27,6 @@
 
 #pragma once
 
-#include <KoreExport.hpp>
-
 #include <data/Block.hpp>
 
 #include <parallel/TaskletRunner.hpp>

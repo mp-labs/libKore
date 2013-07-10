@@ -27,7 +27,7 @@
 
 #pragma once
 
-#include <KoreExport.hpp>
+#include <KoreMacros.hpp>
 #include <KoreTypes.hpp>
 
 #include <QtCore/QList>

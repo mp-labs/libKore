@@ -27,10 +27,9 @@
 
 #pragma once
 
-#include <KoreExport.hpp>
-#include "KoreEvent.hpp"
-
 #include <QtCore/QString>
+
+#include "KoreEvent.hpp"
 
 namespace Kore { namespace event {
 

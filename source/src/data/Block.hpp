@@ -27,7 +27,6 @@
 
 #pragma once
 
-#include <KoreExport.hpp>
 #include <KoreTypes.hpp>
 #include <KoreMacros.hpp>
 #include <data/PointerTypes.hpp>

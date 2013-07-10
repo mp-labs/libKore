@@ -29,7 +29,7 @@
 
 #include <QtCore/QEvent>
 
-#include <KoreExport.hpp>
+#include <KoreMacros.hpp>
 #include <KoreTypes.hpp>
 
 namespace Kore { namespace event {
