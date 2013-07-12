@@ -103,3 +103,6 @@ private:
 };
 
 }}
+
+#define K_BLOCK_CREATE_INSTANCE( block )\
+    ( block::StaticMetaBlock()->createBlockT< block >() )
