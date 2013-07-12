@@ -70,7 +70,7 @@ inline kbool Kore::data::Block::isBeingDeleted() const
 template<typename T>
 inline kbool Kore::data::Block::fastInherits() const
 {
-    const QMetaObject* classMO = T::QtMetaObject();
+    const QMetaObject* classMO = & T::staticMetaObject;
 
     // Speedup proposal... Far more efficient based on pointer arithmetic.
     // What about cache locality ?
