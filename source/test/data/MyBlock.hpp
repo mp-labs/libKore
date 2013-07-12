@@ -25,28 +25,20 @@
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <gtest/gtest.h>
+#pragma once
 
-#include <QtCore/QCoreApplication>
+#include <data/Block.hpp>
 
-#include <QtCore/QDataStream>
-#include <QtCore/QVector>
-
-#include <KoreApplication.hpp>
-
-using namespace Kore;
-
-int main( int argc, char** argv )
+namespace DataTestModule
 {
-    // Create the Qt app
-    QCoreApplication app( argc, argv );
 
-    // Create the Kore app
-    KoreApplication koreApp( argc, argv );
+class MyBlock : public Kore::data::Block
+{
+    Q_OBJECT
+    K_BLOCK
 
-    // Init the Google test framework
-    ::testing::InitGoogleTest( & argc, argv );
+public:
+    MyBlock( kuint64 extraFlags = 0 );
+};
 
-    // Run the tests
-    return RUN_ALL_TESTS();
 }

@@ -25,28 +25,34 @@
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <gtest/gtest.h>
+#include "MyModule.hpp"
 
-#include <QtCore/QCoreApplication>
+#include <plugin/ModuleMacros.hpp>
+K_MODULE_IMPL
 
-#include <QtCore/QDataStream>
-#include <QtCore/QVector>
+using namespace DataTestModule;
 
-#include <KoreApplication.hpp>
-
-using namespace Kore;
-
-int main( int argc, char** argv )
+QString MyModule::id() const
 {
-    // Create the Qt app
-    QCoreApplication app( argc, argv );
+    return QStringLiteral( "net.mp-labs.test.DataTestModule" );
+}
 
-    // Create the Kore app
-    KoreApplication koreApp( argc, argv );
+QString MyModule::name() const
+{
+    return QStringLiteral( "DataTestModule" );
+}
 
-    // Init the Google test framework
-    ::testing::InitGoogleTest( & argc, argv );
+QString MyModule::author() const
+{
+    return QStringLiteral( "Moving Pixel Labs" );
+}
 
-    // Run the tests
-    return RUN_ALL_TESTS();
+QString MyModule::url() const
+{
+    return QStringLiteral( "http://www.mp-labs.net" );
+}
+
+QString MyModule::version() const
+{
+    return QStringLiteral( "0.0.0 test" );
 }
