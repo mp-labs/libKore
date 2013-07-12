@@ -28,12 +28,18 @@
 #pragma once
 
 #include <QtCore/QList>
+#include <QtCore/QMetaType>
 
+#include <KoreTypes.hpp>
 #include <data/LibraryT.hpp>
 
 #include "Loadable.hpp"
 
-namespace Kore { namespace plugin {
+namespace Kore {
+
+class KoreEngine;
+
+namespace plugin {
 
 class KoreExport Module : public Kore::data::LibraryT< Loadable >
 {
@@ -44,6 +50,8 @@ class KoreExport Module : public Kore::data::LibraryT< Loadable >
     Q_PROPERTY( QString author READ author DESIGNABLE true CONSTANT FINAL )
     Q_PROPERTY( QString url READ url DESIGNABLE true CONSTANT FINAL )
     Q_PROPERTY( QString version READ version DESIGNABLE true CONSTANT FINAL )
+
+    friend class Kore::KoreEngine;
 
 protected:
     Module();
@@ -60,18 +68,31 @@ public:
     virtual QString url() const = K_VIRTUAL;
     virtual QString version() const = K_VIRTUAL;
 
+    int userTypeIdForModuleTypeId( quint16 moduleType ) const;
+    quint16 moduleTypeIdForUserTypeId( int userType ) const;
+
     void registerLoadable( Loadable::Instantiator instantiator );
+
+protected:
+    virtual void registerModuleTypes() = K_VIRTUAL;
+    void registerModuleType( int qtMetaId, quint16 moduleId );
 
 private:
     QList< Loadable::Instantiator > _instantiators;
+    QHash< int, quint16 >           _types;
 };
 
 }}
 
 #define K_MODULE \
     friend class Kore::data::MetaBlock;\
+    protected:\
+        virtual void registerModuleTypes();\
     public:\
         static const Kore::plugin::Module* Instance();\
         static bool RegisterLoadable( Kore::plugin::Loadable::Instantiator );\
     private:\
         static Kore::plugin::Module* PrivateInstance();
+
+#define K_MODULE_REGISTER_META_TYPE( type ) \
+    registerModuleType( qMetaTypeId< type >(), moduleTypeIdx++ );

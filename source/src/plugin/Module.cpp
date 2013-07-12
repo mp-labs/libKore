@@ -26,9 +26,6 @@
  */
 
 #include <plugin/Module.hpp>
-using namespace Kore::data;
-using namespace Kore::plugin;
-
 #include <KoreModule.hpp>
 
 #define K_BLOCK_SUPER_TYPE  Kore::data::Library
@@ -36,18 +33,36 @@ using namespace Kore::plugin;
 #include <data/BlockMacros.hpp>
 K_BLOCK_IMPLEMENTATION
 
+using namespace Kore;
+using namespace Kore::data;
+using namespace Kore::plugin;
+
 Module::Module()
 {
-    Kore::KoreEngine::RegisterModule( this );
 }
 
 Module::~Module()
 {
 }
 
+int Module::userTypeIdForModuleTypeId( quint16 moduleType ) const
+{
+    return -1;
+}
+
+quint16 Module::moduleTypeIdForUserTypeId( int metaTypeId ) const
+{
+    return _types.value( metaTypeId, 0xffff );
+}
+
 void Module::registerLoadable( Loadable::Instantiator instantiator )
 {
     _instantiators.append( instantiator );
+}
+
+void Module::registerModuleType( int runtimeId, quint16 moduleId )
+{
+    _types.insert( runtimeId, moduleId );
 }
 
 bool Module::load()
@@ -59,6 +74,7 @@ bool Module::load()
     // Set the block name
     blockName( name() );
 
+    // Load the loadables
     for( int i = 0; i < _instantiators.size(); ++i )
     {
         Loadable* loadable = ( _instantiators.at( i ) )();
@@ -73,6 +89,13 @@ bool Module::load()
             return false;
         }
     }
+
+    // Register the types
+    registerModuleTypes();
+
+    // Register the module
+    Kore::KoreEngine::RegisterModule( this );
+
     return true;
 }
 
@@ -86,7 +109,12 @@ bool Module::unload()
             return false;
         }
     }
+
+    // Unregister the module
+    Kore::KoreEngine::UnregisterModule( this );
+
     // If it's okay, unload the module
     clear();
+
     return true;
 }
