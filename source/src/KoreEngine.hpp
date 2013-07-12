@@ -31,6 +31,7 @@
 #include <parallel/TaskletRunner.hpp>
 
 #include <QtCore/QHash>
+#include <QtCore/QVector>
 
 namespace Kore {
 
@@ -55,7 +56,10 @@ signals:
 
 public:
     static const QList< Kore::data::MetaBlock* > MetaBlocks();
+
     static void RegisterModule( Kore::plugin::Module* module );
+    static void UnregisterModule( Kore::plugin::Module* module );
+
     static void RegisterMetaBlock( Kore::data::MetaBlock* mb );
     static void UnregisterMetaBlock( Kore::data::MetaBlock* mb );
     static Kore::data::Block* CreateBlock( const QString& name );
@@ -70,7 +74,10 @@ public:
     static void RunTasklet( Kore::parallel::Tasklet* tasklet,
                             Kore::parallel::TaskletRunner::RunMode mode );
 
-    static Kore::data::MetaBlock* GetMetaBlock( const QString& name );
+    static const Kore::data::MetaBlock* GetMetaBlock( const QString& name );
+
+    static const Kore::plugin::Module* GetModule( const QString& id );
+    static const Kore::plugin::Module* GetModuleForUserType( int userType );
 
     static void Error( const QString& error,
                        const QString& details = QString() );
@@ -79,11 +86,9 @@ public:
 
 private:
     Kore::data::LibraryT< Kore::plugin::Module >    _modules;
-    QHash< QString, Kore::data::MetaBlock* >        _metaBlocksStringHash;
-    QHash< khash, Kore::data::MetaBlock* >          _metaBlocksHashHash;
-
-private:
-    static KoreEngine* _Instance;
+    QHash< QString, Kore::data::MetaBlock* >        _metaBlocksHash;
+    QVector< Kore::plugin::Module* >                _moduleTypes;
+    QHash< QString, Kore::plugin::Module* >         _modulesHash;
 };
 
 }

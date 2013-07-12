@@ -89,24 +89,56 @@ void KoreEngine::customEvent( QEvent* event )
 
 const QList< MetaBlock* > KoreEngine::MetaBlocks()
 {
-    return Instance()->_metaBlocksHashHash.values();
+    return Instance()->_metaBlocksHash.values();
 }
 
 void KoreEngine::RegisterModule( Module* module )
 {
+    // Register the block
     Instance()->_modules.addBlock( module );
+    Instance()->_modulesHash.insert( module->id(), module );
+
+    // Register the module types
+    QVector< Module* >& moduleTypes = Instance()->_moduleTypes;
+    QList< int > types = module->_types.keys();
+    for( int i = 0; i < types.size(); ++i )
+    {
+        int idx = types.at( i ) - QMetaType::User;
+        if( idx >= moduleTypes.size() )
+        {
+            moduleTypes.resize( idx );
+        }
+        // Store a reference to the module
+        moduleTypes[ idx ] = module;
+    }
+}
+
+void KoreEngine::UnregisterModule( Module* module )
+{
+    // Unregister the block
+    Instance()->_modulesHash.remove( module->id() );
+
+    // Unregister the module types
+    QVector< Module* >& moduleTypes = Instance()->_moduleTypes;
+    for( int i = 0; i < moduleTypes.size(); ++i )
+    {
+        if( moduleTypes.at( i ) == module )
+        {
+            moduleTypes[ i ] = K_NULL;
+        }
+    }
 }
 
 void KoreEngine::RegisterMetaBlock( MetaBlock* mb )
 {
-    QHash< QString, MetaBlock* >& mbsh = Instance()->_metaBlocksStringHash;
+    QHash< QString, MetaBlock* >& mbsh = Instance()->_metaBlocksHash;
     K_ASSERT( ! mbsh.contains( mb->blockClassName() ) )
     mbsh.insert( mb->blockClassName(), mb );
 }
 
 void KoreEngine::UnregisterMetaBlock( MetaBlock* mb )
 {
-    Instance()->_metaBlocksStringHash.remove( mb->blockClassName() );
+    Instance()->_metaBlocksHash.remove( mb->blockClassName() );
 }
 
 Block* KoreEngine::CreateBlock( const QString& name )
@@ -138,14 +170,25 @@ void KoreEngine::RunTasklet( Tasklet* tasklet, TaskletRunner::RunMode mode )
         break;
     default:
         qWarning( "Kore / Unknown running mode for tasklet %s",
-                  qPrintable(tasklet->objectClassName() ) );
+                  qPrintable( tasklet->objectClassName() ) );
         break;
     }
 }
 
-MetaBlock* KoreEngine::GetMetaBlock( const QString& name )
+const MetaBlock* KoreEngine::GetMetaBlock( const QString& name )
 {
-    return Instance()->_metaBlocksStringHash.value( name, K_NULL );
+    return Instance()->_metaBlocksHash.value( name, K_NULL );
+}
+
+const Module* KoreEngine::GetModule( const QString& id )
+{
+    return Instance()->_modulesHash.value( id, K_NULL );
+}
+
+const Module* KoreEngine::GetModuleForUserType( int userType )
+{
+    const QVector< Module* >& modules = Instance()->_moduleTypes;
+    return modules.value( userType - QMetaType::User, K_NULL );
 }
 
 void KoreEngine::Error( const QString& error, const QString& details )
