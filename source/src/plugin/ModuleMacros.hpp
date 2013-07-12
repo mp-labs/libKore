@@ -28,7 +28,11 @@
 #pragma once
 
 #ifndef K_MODULE_TYPE
-#error You must define K_MODULE_TYPE before including <ModuleMacros.hpp> !
+#   error You must define K_MODULE_TYPE before including <ModuleMacros.hpp> !
+#endif
+
+#ifndef K_MODULE_TYPES_LIST
+#   define K_MODULE_TYPES_LIST
 #endif
 
 #include "../KoreEngine.hpp"
@@ -37,6 +41,13 @@
 
 #define K_MODULE_IMPL \
     Q_GLOBAL_STATIC( K_MODULE_TYPE, moduleInstance )\
+    void K_MODULE_TYPE::registerModuleTypes()\
+    {\
+        quint16 moduleTypeIdx = 0;\
+        Q_UNUSED( moduleTypeIdx );\
+        K_MODULE_TYPES_LIST\
+    }\
+    \
     const Kore::plugin::Module* K_MODULE_TYPE::Instance()\
     {\
         return moduleInstance;\
@@ -47,13 +58,21 @@
         return moduleInstance;\
     }\
     \
-    bool K_MODULE_TYPE::RegisterLoadable( Loadable::Instantiator instantiator )\
+    bool K_MODULE_TYPE::RegisterLoadable(\
+            Kore::plugin::Loadable::Instantiator instantiator )\
     {\
         moduleInstance->registerLoadable( instantiator );\
         return true;\
     }
 
 #define K_MODULE_PLUGIN_IMPL \
+    void K_MODULE_TYPE::registerModuleTypes()\
+    {\
+        quint16 moduleTypeIdx = 0;\
+        Q_UNUSED( moduleTypeIdx );\
+        K_MODULE_TYPES_LIST\
+    }\
+    \
     const Kore::plugin::Module* K_MODULE_TYPE::Instance()\
     {\
         return moduleInstance;\
@@ -64,7 +83,8 @@
         return moduleInstance;\
     }\
     \
-    bool K_MODULE_TYPE::RegisterLoadable( Loadable::Instantiator instantiator )\
+    bool K_MODULE_TYPE::RegisterLoadable(\
+            Kore::plugin::Loadable::Instantiator instantiator )\
     {\
         moduleInstance->registerLoadable( instantiator );\
         return true;\

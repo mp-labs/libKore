@@ -31,5 +31,5 @@ using namespace Kore::plugin;
 
 Loadable::Loadable()
 {
-    addFlag( System );
+    addFlag( System | Static );
 }
