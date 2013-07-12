@@ -32,6 +32,39 @@
 #include <data/Library.hpp>
 #include <data/MetaBlock.hpp>
 
+namespace
+{
+
+class BlockPrivateMetaBlock : public Kore::data::MetaBlock
+{
+public:
+    BlockPrivateMetaBlock()
+        : MetaBlock( K_NULL, & Kore::data::Block::staticMetaObject )
+    {}
+
+    virtual bool canUnload() const { return false; }
+    virtual Block* createBlock() const { return K_NULL; }
+
+    virtual QVariant blockProperty( kint property ) const
+    {
+        return Kore::data::Block::DefaultBlockProperty( property );
+    }
+};
+
+}
+
+Q_GLOBAL_STATIC( BlockPrivateMetaBlock, BlockMetaBlock );
+
+const Kore::data::MetaBlock* Kore::data::Block::metaBlock() const
+{
+    return BlockMetaBlock;
+}
+
+const Kore::data::MetaBlock* Kore::data::Block::StaticMetaBlock()
+{
+    return BlockMetaBlock;
+}
+
 using namespace Kore::data;
 
 Block::Block()
@@ -48,8 +81,13 @@ void Block::initialize()
 
 Block::~Block()
 {
-    K_ASSERT( checkFlag( IsBeingDeleted ) )
-    K_ASSERT( _library == K_NULL )
+    if( checkFlag( Static ) )
+    {
+        destroy();
+    }
+
+    K_STRONG_ASSERT( checkFlag( IsBeingDeleted ) )
+    K_STRONG_ASSERT( _library == K_NULL )
 }
 
 bool Block::destroy()
@@ -71,7 +109,6 @@ bool Block::destroy()
     if( checkFlag( Static ) )
     {
         // This was statically allocated (Q_GLOBAL_STATIC): do nothing
-        return true;
     }
     else if( checkFlag( Allocated ) )
     {
@@ -175,16 +212,6 @@ void Block::addFlag( kuint64 flag )
 void Block::removeFlag( kuint flag )
 {
     ( _flags & flag ) ? ( _flags ^= flag ) : _flags;
-}
-
-const MetaBlock* Block::metaBlock() const
-{
-    return K_NULL;
-}
-
-const MetaBlock* Block::StaticMetaBlock()
-{
-    return K_NULL;
 }
 
 kbool Block::fastInherits( const MetaBlock* mb ) const
