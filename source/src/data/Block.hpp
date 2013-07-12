@@ -97,6 +97,13 @@ public:
         MAX_PROPERTY
     };
 
+    enum OptimizationCauses
+    {
+        None,
+        DeserializationComplete,
+        MAX_OPTIMIZATION_CAUSE
+    };
+
 protected:
     /*!
      * @brief Default constructor.
@@ -149,11 +156,13 @@ public:
     /*!
      * @brief Optimization.
      *
+     * @param cause The cause of the optimization.
+     *
      * Block trees sometimes need to be optimized for performance or memory
      * footprint. This virtual method is where such optimizations should be
      * implemented.
      */
-    virtual void optimize();
+    virtual void optimize( int cause = None );
 
     QString objectClassName() const;
 

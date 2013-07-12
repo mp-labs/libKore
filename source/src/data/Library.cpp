@@ -85,7 +85,7 @@ kint Library::totalSize() const
     return size;
 }
 
-void Library::optimize()
+void Library::optimize( int cause )
 {
     QList< Block* > list;
     list.reserve( _blocks.size() );
@@ -93,10 +93,10 @@ void Library::optimize()
     _blocks = list;
 }
 
-void Library::optimizeTree()
+void Library::optimizeTree( int cause )
 {
     // Optimize this library
-    optimize();
+    optimize( cause );
     // Optimize the tree
     for( kint i = 0; i < _blocks.size(); ++i )
     {

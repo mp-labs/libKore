@@ -136,8 +136,9 @@ void Block::library( Library* lib )
     _library = lib;
 }
 
-void Block::optimize()
+void Block::optimize( int cause )
 {
+    Q_UNUSED( cause );
     // Default does... well, nothing :D
     // This is definitely an optimal Block.
 }

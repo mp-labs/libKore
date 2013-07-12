@@ -66,8 +66,8 @@ public:
     template< typename T >
     QList< const T* > findChildrenConst( int maxDepth = -1 ) const;
 
-    virtual void optimize();
-    void optimizeTree();
+    virtual void optimize( int cause = None );
+    void optimizeTree( int cause = None );
 
     virtual kbool acceptsBlock( Block* b ) const;
     virtual void addBlock( Block* b );
