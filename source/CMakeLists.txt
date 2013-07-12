@@ -42,17 +42,13 @@ set( Kore_HDRS      # data
                     src/plugin/PluginInterface.hpp
 
                     # serialization
-                    src/serialization/BlockDeflater.hpp
-                    src/serialization/BlockInflater.hpp
-                    src/serialization/Dumper.hpp
-                    src/serialization/KoreV1.hpp
-                    src/serialization/Loader.hpp
-                    src/serialization/ProgressCallback.hpp
-                    src/serialization/Structures.hpp
+                    src/serialization/KoreSerializer.hpp
+                    src/serialization/TreeSerializer.hpp
 
                     # system
                     src/system/CPU.hpp
 
+                    # Kore
                     src/KoreApplication.hpp
                     src/KoreModule.hpp
                     src/KoreMacros.hpp
@@ -77,6 +73,7 @@ set( Kore_MOC_HDRS  # data
                     src/plugin/Module.hpp
                     src/plugin/PluginsManager.hpp
 
+                    # Kore
                     src/KoreEngine.hpp )
 
 # -- Mocced sources --
@@ -113,10 +110,9 @@ set( Kore_SRCS      # data
                     src/plugin/PluginsManager.cpp
 
                     # serialization
-                    #src/serialization/Dumper.cpp
-                    #src/serialization/KoreV1.cpp
-                    #src/serialization/Loader.cpp
+                    src/serialization/KoreSerializer.cpp
 
+                    # Kore
                     src/KoreApplication.cpp
                     src/KoreEngine.cpp
                     src/KoreModule.cpp )
