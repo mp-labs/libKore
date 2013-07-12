@@ -63,6 +63,8 @@ public:
 
     QString blockClassName() const;
 
+    virtual QMetaProperty property( kint property ) const;
+
     virtual QVariant blockProperty( kint property ) const = K_VIRTUAL;
     QVariant blockSetting( const QString& setting,
                            const QVariant& defaultValue ) const;

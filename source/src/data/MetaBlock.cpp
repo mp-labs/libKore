@@ -51,14 +51,14 @@ void MetaBlock::library( Library* lib )
     Block::library( lib );
 
     if( hasParent() )
-	{
+    {
         Kore::KoreEngine::RegisterMetaBlock( this );
-	}
-	else
-	{
-		clearExtensions();
+    }
+    else
+    {
+        clearExtensions();
         Kore::KoreEngine::UnregisterMetaBlock( this );
-	}
+    }
 }
 
 const QMetaObject* MetaBlock::blockMetaObject() const
@@ -71,20 +71,24 @@ QString MetaBlock::blockClassName() const
     return QLatin1String( _blockMetaObject->className() );
 }
 
+QMetaProperty MetaBlock::property( kint property ) const
+{
+    return _blockMetaObject->property( property );
+}
 
 void MetaBlock::clearExtensions()
 {
     QList< BlockExtension* > extensions = _extensions.values();
-	for(int i = 0; i < extensions.size(); i++)
-	{
+    for( int i = 0; i < extensions.size(); ++i )
+    {
         extensions.at( i )->unregisterWithMetaBlock( this );
-	}
+    }
 }
 
 QVariant MetaBlock::blockSetting( const QString& setting,
                                   const QVariant& defaultValue ) const
 {
-	QSettings settings;
+    QSettings settings;
     settings.beginGroup( K_BLOCK_SETTINGS_GROUP );
     QString key = QString( "%1.%2" ).arg( blockClassName() ).arg( setting );
     return settings.value( key, defaultValue );
@@ -102,7 +106,7 @@ QList< BlockExtension* > MetaBlock::blockExtensions( const QString& name ) const
 
 const QMultiHash< QString, BlockExtension* >& MetaBlock::extensions() const
 {
-	return _extensions;
+    return _extensions;
 }
 
 kbool MetaBlock::registerBlockExtension( BlockExtension* extension )
@@ -112,7 +116,7 @@ kbool MetaBlock::registerBlockExtension( BlockExtension* extension )
             qPrintable( extension->extensionName() ),
             qPrintable( blockName() ) );
     _extensions.insertMulti( extension->extensionName(), extension );
-	return true;
+    return true;
 }
 
 void MetaBlock::unregisterBlockExtension( BlockExtension* extension )
@@ -132,5 +136,5 @@ const MetaBlock* MetaBlock::superMetaBlock() const
 void MetaBlock::destroyBlock( Block* b ) const
 {
     QCoreApplication::removePostedEvents( b );
-	delete b;
+    delete b;
 }
