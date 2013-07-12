@@ -69,7 +69,7 @@ KoreApplication::KoreApplication( kint argc, kchar** argv )
     // Register the memory manager.
     appLib->addBlock( _memoryManager );
 
-    // Load the module
+    // Load the Kore module
     KoreModule::PrivateInstance()->load();
 
     // Create the library that will hold the application data.
