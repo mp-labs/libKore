@@ -26,32 +26,34 @@
  */
 
 #include <KoreModule.hpp>
+
+#include "plugin/ModuleMacros.hpp"
+K_MODULE_IMPL
+
 using namespace Kore;
 using namespace Kore::plugin;
 
-K_MODULE_IMPL
-
 QString KoreModule::id() const
 {
-    return QLatin1String( "net.mp-labs.modules.libkore" );
+    return QStringLiteral( "net.mp-labs.modules.libkore" );
 }
 
 QString KoreModule::name() const
 {
-    return QLatin1String( "libKore" );
+    return QStringLiteral( "libKore" );
 }
 
 QString KoreModule::version() const
 {
-    return QLatin1String( _KORE_VERSION );
+    return QStringLiteral( _KORE_VERSION );
 }
 
 QString KoreModule::author() const
 {
-    return QLatin1String( "Moving Pixel Labs" );
+    return QStringLiteral( "Moving Pixel Labs" );
 }
 
 QString KoreModule::url() const
 {
-    return QLatin1String( "http://mp-labs.net" );
+    return QStringLiteral( "http://mp-labs.net" );
 }

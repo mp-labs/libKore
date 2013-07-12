@@ -36,20 +36,19 @@ class KoreApplication;
 
 class KoreExport KoreModule : public Kore::plugin::Module
 {
-	K_MODULE
+    K_MODULE
 
-	friend class KoreApplication;
+    friend class KoreApplication;
 
 public:
     virtual QString id() const;
-	virtual QString name() const;
-	virtual QString author() const;
-	virtual QString url() const;
-	virtual QString version() const;
+    virtual QString name() const;
+    virtual QString author() const;
+    virtual QString url() const;
+    virtual QString version() const;
 
 };
 
 }
 
 #define K_MODULE_TYPE Kore::KoreModule
-#include "plugin/ModuleMacros.hpp"
