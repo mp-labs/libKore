@@ -79,7 +79,7 @@ public:
 protected:
     inline static void SetBlockAllocated( Block* b )
     {
-        b->addFlag( Block::Allocated );
+        b->addFlags( Block::Allocated );
     }
 
     inline static void InitializeBlock( Block* b )
@@ -90,7 +90,7 @@ protected:
     kbool registerBlockExtension( BlockExtension* extension );
     void unregisterBlockExtension( BlockExtension* extension );
 
-    virtual void destroyBlock( Block* b ) const;
+    virtual void destroyBlock( Block* b ) const = K_NULL;
 
 private:
     void createPropertiesCache() const;
@@ -100,7 +100,6 @@ private:
     const QMetaObject*  _blockMetaObject;
     const MetaBlock*    _superMetaBlock;
 
-    QAtomicInt _instancesCount;
     QMultiHash< QString, BlockExtension* > _extensions;
 };
 

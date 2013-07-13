@@ -40,6 +40,7 @@
 #endif
 
 #include <QtCore/QAtomicInt>
+#include <QtCore/QCoreApplication>
 
 #include "../KoreEngine.hpp"
 
@@ -68,6 +69,13 @@
             }\
             return b;\
         }
+#   define __K_BLOCK_METHOD_DESTROY \
+        void destroyBlock( Block* b ) const\
+        {\
+            QCoreApplication::removePostedEvents( b );\
+            delete b;\
+            blockInstancesCount.deref();\
+        }
 #else
 #   define __K_BLOCK_METHOD_CREATE \
         virtual Kore::data::Block* createBlock() const\
@@ -75,6 +83,12 @@
             qFatal( "Can not instantiate virtual block "\
                     K_BLOCK_XSTR( K_BLOCK_TYPE ) );\
             return K_NULL;\
+        }
+#   define __K_BLOCK_METHOD_DESTROY \
+        virtual void destroyBlock( Block* b ) const\
+        {\
+            qFatal( "Can not destroy virtual block "\
+                    K_BLOCK_XSTR( K_BLOCK_TYPE ) );\
         }
 #endif
 
@@ -105,7 +119,7 @@
                         K_BLOCK_SUPER_TYPE::StaticMetaBlock(),\
                         & ( K_BLOCK_TYPE::staticMetaObject ) )\
             {\
-                addFlag( Block::Static );\
+                addFlags( System );\
             }\
             \
             virtual bool canUnload() const\
@@ -115,11 +129,7 @@
             \
             __K_BLOCK_METHOD_CREATE\
             \
-            virtual void destroyBlock( Kore::data::Block* b ) const\
-            {\
-                MetaBlock::destroyBlock( b );\
-                blockInstancesCount.deref();\
-            }\
+            __K_BLOCK_METHOD_DESTROY\
             \
             __K_BLOCK_METHOD_PROPERTY\
             \

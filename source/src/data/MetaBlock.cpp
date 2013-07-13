@@ -43,6 +43,7 @@ MetaBlock::MetaBlock( const MetaBlock* superMetaBlock, const QMetaObject* mo )
     : _blockMetaObject( mo )
     , _superMetaBlock( superMetaBlock )
 {
+    addFlags( System );
     blockName( tr( "MetaBlock for %1" ).arg( mo->className() ) );
 }
 
@@ -131,10 +132,4 @@ void MetaBlock::unregisterBlockExtension( BlockExtension* extension )
 const MetaBlock* MetaBlock::superMetaBlock() const
 {
     return _superMetaBlock;
-}
-
-void MetaBlock::destroyBlock( Block* b ) const
-{
-    QCoreApplication::removePostedEvents( b );
-    delete b;
 }
