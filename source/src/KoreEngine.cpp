@@ -52,8 +52,10 @@ using namespace Kore::plugin;
 Q_GLOBAL_STATIC( KoreEngine, koreEngineInstance )
 
 KoreEngine::KoreEngine()
-    : _modules( Block::SystemOwned | Block::Static )
+    : _modules( Block::System )
 {
+    addFlags( System );
+
     Q_ASSERT_X( ! koreEngineInstance.exists(),
                 "KoreEngine",
                 "Only one instance is allowed !" );

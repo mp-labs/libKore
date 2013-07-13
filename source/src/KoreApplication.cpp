@@ -53,12 +53,13 @@ KoreApplication::KoreApplication( kint argc, kchar** argv )
 
     // Create the memory manager first!!!
     _memoryManager = new SimpleMemoryManager();
+    _memoryManager->initialize( Block::System | Block::Newed );
 
     // Create the root library.
-    _rootLibrary = new Library( Block::System );
+    _rootLibrary = new Library( Block::System | Block::Newed );
     _rootLibrary->blockName( "Root" );
 
-    Library* appLib = new Library( Block::System );
+    Library* appLib = new Library( Block::System | Block::Newed );
     appLib->blockName( "Kore Internals" );
 
     _rootLibrary->addBlock( appLib );
@@ -73,7 +74,7 @@ KoreApplication::KoreApplication( kint argc, kchar** argv )
     KoreModule::PrivateInstance()->load();
 
     // Create the library that will hold the application data.
-    _dataLibrary = new Library( Block::System );
+    _dataLibrary = new Library( Block::System | Block::Newed );
     _dataLibrary->blockName( "Data" );
     _rootLibrary->addBlock( _dataLibrary );
 
