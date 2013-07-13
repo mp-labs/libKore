@@ -44,6 +44,7 @@ public:
 
     virtual bool canUnload() const { return false; }
     virtual Block* createBlock() const { return K_NULL; }
+    virtual void destroyBlock( Kore::data::Block* ) const {}
 
     virtual QVariant blockProperty( kint property ) const
     {
@@ -74,57 +75,79 @@ Block::Block()
 {
 }
 
-void Block::initialize()
+void Block::initialize( kuint64 flags )
 {
-    // TODO: Do some cache/init in here!!
+    addFlags( flags );
 }
 
 Block::~Block()
 {
-    if( checkFlag( Static ) )
+    if( ! checkFlag( IsBeingDeleted ) )
     {
+        // We are in the destructor, clearly being deleted...
+        addFlags( IsBeingDeleted );
+        // This is late but better try to cleanup...
         destroy();
     }
 
-    K_STRONG_ASSERT( checkFlag( IsBeingDeleted ) )
     K_STRONG_ASSERT( _library == K_NULL )
 }
 
 bool Block::destroy()
 {
-    // This block is being deleted.
-    addFlag( IsBeingDeleted );
+    // < VERY IMPORTANT TO ENSURE PROPER TREE REMOVAL BEFORE DELETION >
 
     // Notify our watchers.
     emit blockDeleted();
 
-    // Cleanup the connection to the library
+    // Cleanup the connection to the library if any
     if( hasParent() )
     {
         // Immediate removal from the library tree.
         library()->removeBlock( this );
     }
 
-    // Actually destroy this thing.
-    if( checkFlag( Static ) )
+    // < / VERY IMPORTANT TO ENSURE PROPER TREE REMOVAL BEFORE DELETION >
+
+    if( ! checkFlag( IsBeingDeleted ) )
     {
-        // This was statically allocated (Q_GLOBAL_STATIC): do nothing
+        // Flag the block as being deleted
+        addFlags( IsBeingDeleted );
+
+        // Actually destroy this thing.
+        if( checkFlag( Allocated ) )
+        {
+            // If the block was allocated
+            metaBlock()->destroyBlock( this );
+        }
+        else if( checkFlag( Newed ) )
+        {
+            // The block does not have a factory but should be deleted anyway
+            // as it is a SYSTEM block.
+            delete this; // Delete this straight up...
+        }
+        else if( checkFlag( Static ) )
+        {
+            // Nothing to do because statically allocated
+        }
+        else
+        {
+            // This block can not be completely removed...
+            qWarning( "Probably leaking Block -> Name: %s - Address: %p",
+                      qPrintable( blockName() ),
+                      this );
+            return false;
+        }
     }
-    else if( checkFlag( Allocated ) )
+    else if( ! checkFlag( System ) )
     {
-        // If the block was allocated
-        metaBlock()->destroyBlock( this );
-    }
-    else if( checkFlag( System ) )
-    {
-        // The block does not have a factory but should be deleted anyway as it
-        // is a SYSTEM block.
-        delete this; // Delete this straight up...
-    }
-    else
-    {
-        // This block can not be completely removed...
-        return false;
+        // If we are here, it's because within a Block or Library destructor,
+        // the IsBeingDeleted flag was not set, indicating that the user did
+        // not call destroy but delete.
+        qWarning( "You should use Block::destroy() rather than delete on Block "
+                  "-> Name: %s - Adress: %p",
+                  qPrintable( blockName() ),
+                  this );
     }
 
     return true;
@@ -204,12 +227,12 @@ kbool Block::isLibrary() const
     return false;
 }
 
-void Block::addFlag( kuint64 flag )
+void Block::addFlags( kuint64 flag )
 {
     _flags |= flag;
 }
 
-void Block::removeFlag( kuint flag )
+void Block::removeFlag( kuint64 flag )
 {
     ( _flags & flag ) ? ( _flags ^= flag ) : _flags;
 }

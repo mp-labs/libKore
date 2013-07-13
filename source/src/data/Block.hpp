@@ -69,8 +69,8 @@ public:
     {
         /// The block was allocated by its allocator
         Allocated =         0x1 << 0,
-        /// The block was statically allocated: no new/free...
-        Static =            0x1 << 1,
+        /// The block was allocated using new
+        Newed =             0x1 << 1,
         /// The block is currently being deleted
         IsBeingDeleted =    0x1 << 2,
         /// The block is Serializable: should be considered for serialization.
@@ -79,10 +79,12 @@ public:
         Browsable =         0x1 << 4,
         /// The block is editable, users can modify it.
         Editable =          0x1 << 5,
+        /// The block is statically allocated, disables memory management
+        Static =            0x1 << 6,
+        /// The block is a system library statically allocated by the system
+        System =            Static,
         /// The block is owned by the system (can not be deleted by the user).
-        SystemOwned =       0x1 << 6,
-        /// The block is a system library (block, factories...)
-        System =            0x1 << 7,
+        SystemOwned =       0x1 << 7,
         /// MAX FLAG for subclasses flags
         MAX_FLAG =          0x1 << 8,
         /// MAX MAX FLAG to set the enumeration size (64 bits)
@@ -113,6 +115,7 @@ protected:
      */
     Block();
 
+public:
     /*!
      * @brief Initialization routine.
      *
@@ -121,9 +124,8 @@ protected:
      * allows to do some generic post instantiation initialization.
      * All overrides must call the parent implementation.
      */
-    virtual void initialize();
+    virtual void initialize( kuint64 flags = 0 );
 
-public:
     virtual ~Block();
 
 public:
@@ -216,7 +218,7 @@ protected:
      *
      * @param[in] flag	Flag to be added.
      */
-    void addFlag( kuint64 flag );
+    void addFlags( kuint64 flag );
     /*!
      * @brief	Removes a flag from the Block.
      *
@@ -224,7 +226,7 @@ protected:
      *
      * @param[in] flag	Flag to be removed.
      */
-    void removeFlag( kuint flag );
+    void removeFlag( kuint64 flag );
 
 signals:
     void blockNameChanged( const QString& name );
