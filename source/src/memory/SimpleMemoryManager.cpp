@@ -36,7 +36,6 @@ SimpleMemoryManager::SimpleMemoryManager()
 {
     blockName( "Simple Memory Manager" );
     removeFlag( Block::Serializable ); // A memory manager is not serializable.
-    addFlag( Block::System );
 }
 
 void* SimpleMemoryManager::mAlloc( ksize sz ) const
