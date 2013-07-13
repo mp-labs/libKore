@@ -111,7 +111,7 @@ Tasklet::~Tasklet()
     if( ! checkFlag( IsBeingDeleted ) )
     {
         // The Tasklet was created on the stack ! // ???? What is that for :/
-        addFlag( IsBeingDeleted );
+        addFlags( IsBeingDeleted );
     }
 }
 
