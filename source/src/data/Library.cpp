@@ -40,17 +40,25 @@ using namespace Kore::data;
 Library::Library( kuint64 extraFlags )
 {
     // By default a library is browsable
-    addFlag( Browsable );
-    addFlag( extraFlags );
+    addFlags( Browsable );
+    addFlags( extraFlags );
+}
+
+Library::~Library()
+{
+    if( ! checkFlag( IsBeingDeleted ) )
+    {
+        destroy();
+    }
 }
 
 bool Library::destroy()
 {
     // This library is being deleted, this flag will be checked when destroying
     // its children.
-    addFlag( IsBeingDeleted );
-
+    addFlags( IsBeingDeleted );
     clear(); // Destroy all child blocks.
+    removeFlag( IsBeingDeleted );
 
     return Block::destroy();
 }

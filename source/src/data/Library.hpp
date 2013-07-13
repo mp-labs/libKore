@@ -41,6 +41,7 @@ class KoreExport Library : public Block
 
 public:
     Library( kuint64 extraFlags = 0 );
+    virtual ~Library();
 
     virtual bool destroy();
 
