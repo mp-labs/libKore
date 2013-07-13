@@ -38,5 +38,5 @@ using namespace DataTestModule;
 
 MyBlock::MyBlock( kuint64 extraFlags )
 {
-    addFlag( extraFlags );
+    addFlags( extraFlags );
 }

@@ -78,21 +78,24 @@ TEST( LibraryTest, AutoBlockRemoval )
     {
         MyBlock block( Block::Static );
         lib.addBlock( & block );
-        EXPECT_TRUE( lib.size() == 1 ) << "Add failed";
+        EXPECT_TRUE( lib.size() == 1 );
     }
-    EXPECT_TRUE( lib.size() == 0 ) << "Removal failed";
+    EXPECT_TRUE( lib.size() == 0 );
 }
 
 TEST( LibraryTest, RemoveBlock )
 {
     MyLibrary lib( Block::Static );
-    MyBlock block( Block::Static );
-    lib.addBlock( & block );
-    EXPECT_TRUE( lib.size() == 1 ) << "Add failed";
-    lib.removeBlock( & block );
-    EXPECT_TRUE( lib.size() == 0 ) << "Removal failed";
-    EXPECT_TRUE( -1 == block.index() );
-    EXPECT_TRUE( lib.size() == 0 ) << "Removal failed";
+    MyBlock block1( Block::Static );
+    MyBlock block2( Block::Static );
+
+    lib.addBlock( & block1 );
+    lib.addBlock( & block2 );
+    EXPECT_TRUE( lib.size() == 2 );
+    lib.removeBlock( & block1 );
+    EXPECT_TRUE( lib.size() == 1 );
+    EXPECT_TRUE( -1 == block1.index() );
+    EXPECT_TRUE( 0 == block2.index() );
 }
 
 TEST( LibraryTest, SwapBlocks )
@@ -105,9 +108,11 @@ TEST( LibraryTest, SwapBlocks )
     EXPECT_TRUE( lib.size() == 2 );
     EXPECT_TRUE( block1.index() == 0 );
     EXPECT_TRUE( block2.index() == 1 );
+
     lib.swapBlocks( & block1, & block2 );
     EXPECT_TRUE( block1.index() == 1 );
     EXPECT_TRUE( block2.index() == 0 );
+
     lib.swapBlocks( & block1, & block2 );
     EXPECT_TRUE( block1.index() == 0 );
     EXPECT_TRUE( block2.index() == 1 );

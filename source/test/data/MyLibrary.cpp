@@ -39,5 +39,4 @@ using namespace DataTestModule;
 MyLibrary::MyLibrary( kuint64 flags )
     : Library( flags )
 {
-
 }
