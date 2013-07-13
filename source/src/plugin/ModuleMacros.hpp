@@ -64,28 +64,3 @@
         moduleInstance->registerLoadable( instantiator );\
         return true;\
     }
-
-#define K_MODULE_PLUGIN_IMPL \
-    void K_MODULE_TYPE::registerModuleTypes()\
-    {\
-        quint16 moduleTypeIdx = 0;\
-        Q_UNUSED( moduleTypeIdx );\
-        K_MODULE_TYPES_LIST\
-    }\
-    \
-    const Kore::plugin::Module* K_MODULE_TYPE::Instance()\
-    {\
-        return moduleInstance;\
-    }\
-    \
-    Kore::plugin::Module* K_MODULE_TYPE::PrivateInstance()\
-    {\
-        return moduleInstance;\
-    }\
-    \
-    bool K_MODULE_TYPE::RegisterLoadable(\
-            Kore::plugin::Loadable::Instantiator instantiator )\
-    {\
-        moduleInstance->registerLoadable( instantiator );\
-        return true;\
-    }

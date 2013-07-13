@@ -39,7 +39,7 @@ using namespace Kore::plugin;
 
 Module::Module()
 {
-    addFlag( System | Static );
+    addFlags( System );
 }
 
 Module::~Module()
@@ -68,7 +68,16 @@ void Module::registerModuleType( int runtimeId, quint16 moduleId )
 
 bool Module::load()
 {
-    qDebug( "Kore / Loading module %s (%s)",
+    if( hasParent() )
+    {
+        // The module was already loaded
+        qWarning( "Module %s (%s) is already lodaded",
+                  qPrintable( name() ),
+                  qPrintable( version() ) );
+        return false;
+    }
+
+    qDebug( "Loading module %s (%s)",
             qPrintable( name() ),
             qPrintable( version() ) );
 
