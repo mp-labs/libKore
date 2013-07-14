@@ -61,6 +61,7 @@ public:
         UnsupportedOperation,
         IOError,
         RequiresRandomAccess,
+        InvalidData,
         SeekFailed,
         BlockInstantiationFailed,
         BlockSetPropertyFailed,
