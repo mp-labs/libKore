@@ -32,6 +32,11 @@ K_MODULE_IMPL
 
 using namespace DataTestModule;
 
+namespace
+{
+static bool loadModule = MyModule::StaticLoad();
+}
+
 QString MyModule::id() const
 {
     return QStringLiteral( "net.mp-labs.test.DataTestModule" );
@@ -55,4 +60,9 @@ QString MyModule::url() const
 QString MyModule::version() const
 {
     return QStringLiteral( "0.0.0 test" );
+}
+
+bool MyModule::StaticLoad()
+{
+    return moduleInstance->load();
 }

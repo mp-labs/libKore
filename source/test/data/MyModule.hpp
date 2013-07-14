@@ -43,6 +43,8 @@ public:
     virtual QString author() const;
     virtual QString url() const;
     virtual QString version() const;
+
+    static bool StaticLoad();
 };
 
 }
