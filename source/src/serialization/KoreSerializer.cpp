@@ -201,7 +201,7 @@ int ReadMetaData( Context& ctx )
     ctx.modulesIds.reserve( modulesCount );
     ctx.modulesList.reserve( modulesCount );
 
-    for( qint16 i = 0; i < modulesCount; ++i )
+    for( quint16 i = 0; i < modulesCount; ++i )
     {
         QByteArray moduleId;
         stream >> moduleId;
@@ -225,7 +225,7 @@ int ReadMetaData( Context& ctx )
     }
 
     // Metablocks
-    qint32 metaBlocksCount;
+    quint32 metaBlocksCount;
     stream >> metaBlocksCount;
 
     // Reserve the space for the blocks (OK since indices are integers)
