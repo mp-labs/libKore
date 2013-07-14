@@ -35,10 +35,25 @@ namespace DataTestModule
 class MyBlock1 : public MyBlock
 {
     Q_OBJECT
+
+    Q_PROPERTY( int leInt MEMBER _leInt STORED ( _leInt != 0 ) )
+    Q_PROPERTY( QString laString
+                MEMBER _laString STORED ( ! _laString.isEmpty() ) )
+
     K_BLOCK
 
 public:
     MyBlock1( kuint64 extraFlags = 0 );
+
+    int leInt() const;
+    void setLeInt( int i );
+
+    const QString& laString() const;
+    void setLaString( const QString& str );
+
+private:
+    int     _leInt;
+    QString _laString;
 };
 
 }

@@ -38,5 +38,26 @@ using namespace DataTestModule;
 
 MyBlock1::MyBlock1( kuint64 extraFlags )
     : MyBlock( extraFlags )
+    , _leInt( 0 )
 {
+}
+
+int MyBlock1::leInt() const
+{
+    return _leInt;
+}
+
+void MyBlock1::setLeInt( int i )
+{
+    _leInt = i;
+}
+
+const QString& MyBlock1::laString() const
+{
+    return _laString;
+}
+
+void MyBlock1::setLaString( const QString& str )
+{
+    _laString = str;
 }
