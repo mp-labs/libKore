@@ -681,6 +681,10 @@ int InflateBlock( Context& ctx, Block** block, int* childrenNb )
         // Cleanup the type
         type = LIBRARY_HAS_CHILREN_MASK & type;
     }
+    else
+    {
+        *childrenNb = 0;
+    }
 
     // Retrieve the block meta type
     const MetaBlock* mb = ctx.getMetaBlock( type );
