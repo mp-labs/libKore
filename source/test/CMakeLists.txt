@@ -13,7 +13,7 @@ set( DATA_TEST_MODULE_SRCS  data/MyBlock.cpp
                             data/MyLibrary.cpp
                             data/MyModule.cpp )
 
-qt5_wrap_cpp( DATA_TEST_MODULE_MOC_SRCS     ${DATA_TEST_MODULE_MOC_HDRS} )
+qt5_wrap_cpp( DATA_TEST_MODULE_MOC_SRCS ${DATA_TEST_MODULE_MOC_HDRS} )
 
 add_library( DataTestModule STATIC  ${DATA_TEST_MODULE_MOC_HDRS}
                                     ${DATA_TEST_MODULE_MOC_SRCS}
@@ -21,8 +21,12 @@ add_library( DataTestModule STATIC  ${DATA_TEST_MODULE_MOC_HDRS}
 
 target_link_libraries( DataTestModule ${KORE_TARGET} )
 
-mpb_test_add( data_block test_main.cpp data/data_tests.cpp )
-mpb_test_link_libraries( data_block ${KORE_TARGET} DataTestModule )
+mpb_test_add( data test_main.cpp data/data_tests.cpp )
+mpb_test_link_libraries( data ${KORE_TARGET} DataTestModule )
 
-mpb_test_add( parallel_tasklet test_main.cpp parallel/TestTasklet.cpp )
-mpb_test_link_libraries( parallel_tasklet ${KORE_TARGET} )
+mpb_test_add( parallel test_main.cpp parallel/TestTasklet.cpp )
+mpb_test_link_libraries( parallel ${KORE_TARGET} )
+
+mpb_test_add( serialization test_main.cpp
+                            serialization/serialization_tests.cpp )
+mpb_test_link_libraries( serialization ${KORE_TARGET} DataTestModule )
