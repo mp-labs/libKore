@@ -27,7 +27,6 @@
 
 #include <QtCore/QBuffer>
 #include <QtCore/QByteArray>
-#include <QtCore/QTemporaryFile>
 
 #include <gtest/gtest.h>
 
@@ -50,13 +49,9 @@ TEST( SerializationTest, SerializeSimpleBlock )
     block->setLeInt( 123456 );
     block->setLaString( "Hello World!" );
 
-    /*QByteArray buffer;
+    QByteArray buffer;
     QBuffer device( & buffer );
-    device.open( QIODevice::ReadWrite | QIODevice::Truncate );*/
-
-    QTemporaryFile device( "./Kore_serialization_test_file" );
-    device.setAutoRemove( false );
-    device.open();
+    device.open( QIODevice::ReadWrite | QIODevice::Truncate );
 
     int err;
 
