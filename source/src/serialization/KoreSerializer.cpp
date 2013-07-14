@@ -289,7 +289,7 @@ int WriteBlockProperties( Context& ctx, const Block* block )
           ++i )
     {
         QMetaProperty prop = block->metaBlock()->property( i );
-        if( ! prop.isStored() )
+        if( ! prop.isStored( block ) )
         {
             continue;
         }
