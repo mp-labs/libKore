@@ -912,7 +912,7 @@ int KoreSerializer::inflate( QIODevice* device,
     if( 0 != childrenNb )
     {
         LibContext libCtx = { static_cast< Library* >( root ), childrenNb };
-        libs.push_back( libCtx );
+        libs.push( libCtx );
     }
 
     while( ! libs.empty() )
