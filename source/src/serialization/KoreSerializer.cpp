@@ -55,6 +55,8 @@ using namespace Kore::serialization;
 #define LIBRARY_HAS_CHILDREN_FLAG   0x80000000
 #define LIBRARY_HAS_CHILREN_MASK    0x7FFFFFFF
 
+#define END_OF_STREAM               ( K_FOURCC( 'K', 'E', 'N', 'D' ) )
+
 namespace {
 
 struct Context
@@ -143,6 +145,9 @@ int WriteMetaData( Context& ctx )
     // Write the size of the metadata
     stream << static_cast< quint32 >( ctx.device->pos() - startPos );
 
+    // Write the end of stream tag
+    stream << static_cast< quint32 >( END_OF_STREAM );
+
     if( QDataStream::Ok != stream.status() )
     {
         return TreeSerializer::IOError;
@@ -164,13 +169,26 @@ int ReadMetaData( Context& ctx )
         return TreeSerializer::SeekFailed;
     }
 
+    // Read the end of stream tag
+    quint32 endOfStreamTag;
+    stream >> endOfStreamTag;
+    if( END_OF_STREAM != endOfStreamTag )
+    {
+        return TreeSerializer::InvalidData;
+    }
+
+    if( ! ctx.device->seek( ctx.device->size() - ( 2 * sizeof( quint32 ) ) ) )
+    {
+        return TreeSerializer::SeekFailed;
+    }
+
     // Read the metadata size
     quint32 metaDataSize;
     stream >> metaDataSize;
 
     // Go at the beginning of the metadata
     if( ! ctx.device->seek(
-                ctx.device->size() - sizeof( quint32 ) - metaDataSize ) )
+            ctx.device->size() - ( 2 * sizeof( quint32 ) ) - metaDataSize ) )
     {
         return TreeSerializer::SeekFailed;
     }
