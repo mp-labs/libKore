@@ -126,17 +126,17 @@ int WriteMetaData( Context& ctx )
     CREATE_STREAM( stream, ctx.device );
 
     // Write the modules metadata
-    stream << static_cast< quint16 >( ctx.metaBlocksList.size() );
-    for( int i = 0; i < ctx.metaBlocksList.size(); ++i )
-    {
-        stream << ctx.metaBlocksList.at( i )->blockClassName().toLatin1();
-    }
-
-    // Write the metablocks metadata
-    stream << static_cast< quint32 >( ctx.modulesList.size() );
+    stream << static_cast< quint16 >( ctx.modulesList.size() );
     for( int i = 0; i < ctx.modulesList.size(); ++i )
     {
         stream << ctx.modulesList.at( i )->id().toLatin1();
+    }
+
+    // Write the metablocks metadata
+    stream << static_cast< quint32 >( ctx.metaBlocksList.size() );
+    for( int i = 0; i < ctx.metaBlocksList.size(); ++i )
+    {
+        stream << ctx.metaBlocksList.at( i )->blockClassName().toLatin1();
     }
 
     // Write the number of serialized blocks
