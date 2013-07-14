@@ -90,7 +90,7 @@
 #define _K_DECL_OVERRIDE Q_DECL_OVERRIDE
 
 #define K_FOURCC( a, b, c, d )\
-    ( ( kuint ) ( ( ( d ) << 24 ) | ( ( c ) << 16 ) | ( ( b ) <<8 ) | ( a ) ) )
+    ( ( kuint ) ( ( ( a ) << 24 ) | ( ( b ) << 16 ) | ( ( c ) <<8 ) | ( d ) ) )
 
 #define _K_PI	3.14159265358979323846
 
