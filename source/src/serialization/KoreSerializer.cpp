@@ -302,13 +302,25 @@ int WriteBlockProperties( Context& ctx, const Block* block )
             continue;
         }
 
-        if( static_cast< int >( prop.type() ) > QMetaType::UnknownType &&
-            static_cast< int >( prop.type() ) < QMetaType::User )
+        const int propType = static_cast< int >( prop.type() );
+
+        if( ( propType > QMetaType::UnknownType ) &&
+            ( propType < QMetaType::User ) )
         {
             // Write the property index
             stream << static_cast< quint16 >( prop.propertyIndex() );
-            // Native type, simply write the data
-            stream << variant;
+
+            switch( propType )
+            {
+            case QMetaType::QString:
+                // For strings, encode to UTF-8  byte array to save space.
+                stream << variant.toString().toUtf8();
+                break;
+            default:
+                // Native type, simply write the data
+                stream << variant;
+                break;
+            }
         }
         else if( prop.userType() >= QMetaType::User )
         {
@@ -448,13 +460,28 @@ int ReadBlockProperties( Context& ctx, Block* block )
 
         QMetaProperty prop = block->metaBlock()->property( propertyIdx );
 
+        const int propType = static_cast< int >( prop.type() );
+
         QVariant variant;
 
-        if( static_cast< int >( prop.type() ) > QMetaType::UnknownType &&
-            static_cast< int >( prop.type() ) < QMetaType::User )
+        if( ( propType > QMetaType::UnknownType ) &&
+            ( propType < QMetaType::User ) )
         {
-            // Qt native type, simply read the data
-            stream >> variant;
+            switch( propType )
+            {
+            case QMetaType::QString:
+                // For strings parse an UTF-8 buffer
+                {
+                    QByteArray utf8;
+                    stream >> utf8;
+                    variant = QString::fromUtf8( utf8, utf8.size() );
+                }
+                break;
+            default:
+                // Qt native type, simply read the data
+                stream >> variant;
+                break;
+            }
         }
         else if( prop.userType() >= QMetaType::User )
         {
