@@ -101,17 +101,11 @@ void KoreEngine::RegisterModule( Module* module )
     Instance()->_modulesHash.insert( module->id(), module );
 
     // Register the module types
-    QVector< Module* >& moduleTypes = Instance()->_moduleTypes;
-    QList< int > types = module->_types.keys();
+    QHash< int, Module* >& moduleTypes = Instance()->_moduleTypes;
+    QList< int > types = module->_metaToModuleHash.keys();
     for( int i = 0; i < types.size(); ++i )
     {
-        int idx = types.at( i ) - QMetaType::User;
-        if( idx >= moduleTypes.size() )
-        {
-            moduleTypes.resize( idx );
-        }
-        // Store a reference to the module
-        moduleTypes[ idx ] = module;
+        moduleTypes.insert( types.at( i ), module );
     }
 }
 
@@ -121,13 +115,11 @@ void KoreEngine::UnregisterModule( Module* module )
     Instance()->_modulesHash.remove( module->id() );
 
     // Unregister the module types
-    QVector< Module* >& moduleTypes = Instance()->_moduleTypes;
-    for( int i = 0; i < moduleTypes.size(); ++i )
+    QHash< int, Module* >& moduleTypes = Instance()->_moduleTypes;
+    QList< int > types = module->_metaToModuleHash.keys();
+    for( int i = 0; i < types.size(); ++i )
     {
-        if( moduleTypes.at( i ) == module )
-        {
-            moduleTypes[ i ] = K_NULL;
-        }
+        moduleTypes.remove( types.at( i ) );
     }
 }
 
@@ -189,8 +181,7 @@ const Module* KoreEngine::GetModule( const QString& id )
 
 const Module* KoreEngine::GetModuleForUserType( int userType )
 {
-    const QVector< Module* >& modules = Instance()->_moduleTypes;
-    return modules.value( userType - QMetaType::User, K_NULL );
+    return Instance()->_moduleTypes.value( userType, K_NULL );
 }
 
 void KoreEngine::Error( const QString& error, const QString& details )

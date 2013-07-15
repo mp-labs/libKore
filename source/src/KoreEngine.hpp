@@ -87,7 +87,7 @@ public:
 private:
     Kore::data::LibraryT< Kore::plugin::Module >    _modules;
     QHash< QString, Kore::data::MetaBlock* >        _metaBlocksHash;
-    QVector< Kore::plugin::Module* >                _moduleTypes;
+    QHash< int, Kore::plugin::Module* >             _moduleTypes;
     QHash< QString, Kore::plugin::Module* >         _modulesHash;
 };
 
