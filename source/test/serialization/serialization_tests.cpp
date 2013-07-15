@@ -43,7 +43,7 @@ using namespace DataTestModule;
 using namespace Kore::data;
 using namespace Kore::serialization;
 
-TEST( SerializationTest, SerializeSimpleBlock )
+TEST( SerializationTest, SerializeBlock )
 {
     MyBlock1* block = K_BLOCK_CREATE_INSTANCE( MyBlock1 );
     block->setLeInt( 123456 );
@@ -51,7 +51,7 @@ TEST( SerializationTest, SerializeSimpleBlock )
 
     QByteArray buffer;
     QBuffer device( & buffer );
-    device.open( QIODevice::ReadWrite | QIODevice::Truncate );
+    device.open( QIODevice::ReadWrite );
 
     int err;
 
@@ -70,9 +70,97 @@ TEST( SerializationTest, SerializeSimpleBlock )
 
     ASSERT_TRUE( inflatedBlock->fastInherits< MyBlock1 >() );
 
-    EXPECT_TRUE( block->leInt() ==
-                 static_cast< MyBlock1* >( inflatedBlock )->leInt() );
+    EXPECT_TRUE( block->leInt() == inflatedBlock->to< MyBlock1 >()->leInt() );
 
     EXPECT_TRUE( block->laString() ==
-                 static_cast< MyBlock1* >( inflatedBlock )->laString() );
+                 inflatedBlock->to< MyBlock1 >()->laString() );
+
+    block->destroy();
+    inflatedBlock->destroy();
+}
+
+TEST( SerializationTest, SerializeTree )
+{
+    MyLibrary* lib1 = K_BLOCK_CREATE_INSTANCE( MyLibrary );
+
+    MyBlock1* block1 = K_BLOCK_CREATE_INSTANCE( MyBlock1 );
+    block1->setLeInt( 123 );
+    block1->setLaString( "Blabla" );
+    block1->leCustomType().laString = "Ahahah";
+    block1->leCustomType().leInt32 = 254;
+
+    lib1->addBlock( block1 );
+
+    MyLibrary* lib2 = K_BLOCK_CREATE_INSTANCE( MyLibrary );
+    lib1->addBlock( lib2 );
+
+    MyBlock1* block2 = K_BLOCK_CREATE_INSTANCE( MyBlock1 );
+    block2->setLeInt( 456 );
+    block2->setLaString( "Tududu" );
+    lib2->addBlock( block2 );
+
+    // This type is not serializable !
+    MyBlock2* block3 = K_BLOCK_CREATE_INSTANCE( MyBlock2 );
+    lib2->addBlock( block3 );
+
+    ASSERT_TRUE( lib1->size() == 2 );
+    ASSERT_TRUE( lib1->at( 0 )->fastInherits< MyBlock1 >() );
+    EXPECT_TRUE( lib1->at< MyBlock1 >( 0 )->leInt() == 123 );
+    EXPECT_TRUE( lib1->at< MyBlock1 >( 0 )->laString() == "Blabla" );
+    EXPECT_TRUE( lib1->at< MyBlock1 >( 0 )->leCustomType().laString ==
+                 "Ahahah" );
+    EXPECT_TRUE( lib1->at< MyBlock1 >( 0 )->leCustomType().leInt32 == 254 );
+
+    ASSERT_TRUE( lib1->at( 1 )->fastInherits< MyLibrary >() );
+    ASSERT_TRUE( lib1->at< MyLibrary >( 1 )->size() == 2 );
+    ASSERT_TRUE(
+        lib1->at< MyLibrary >( 1 )->at( 0 )->fastInherits< MyBlock1 >() );
+    ASSERT_TRUE(
+        lib1->at< MyLibrary >( 1 )->at( 1 )->fastInherits< MyBlock2 >() );
+    EXPECT_TRUE(
+        lib1->at< MyLibrary >( 1 )->at< MyBlock1 >( 0 )->leInt() == 456 );
+    EXPECT_TRUE( lib1->at< MyLibrary >( 1 )->at< MyBlock1 >( 0 )->laString() ==
+                 "Tududu" );
+
+    // Now serialize
+    QByteArray buffer;
+    QBuffer device( & buffer );
+    device.open( QIODevice::ReadWrite );
+
+    int err;
+
+    KoreSerializer serializer;
+    err = serializer.deflate( & device, lib1, K_NULL );
+    ASSERT_TRUE( KoreSerializer::NoError == err ) << "Error code: " << err;
+
+    // Reset...
+    device.seek( 0 );
+
+    Block* inflatedBlock;
+    err = serializer.inflate( & device, & inflatedBlock, K_NULL );
+    ASSERT_TRUE( KoreSerializer::NoError == err ) << "Error code: " << err;
+
+    ASSERT_TRUE( inflatedBlock->fastInherits< MyLibrary >() );
+
+    MyLibrary* iLib1 = inflatedBlock->to< MyLibrary >();
+
+    ASSERT_TRUE( iLib1->size() == 2 ) << iLib1->size() << " child block(s)";
+    ASSERT_TRUE( iLib1->at( 0 )->fastInherits< MyBlock1 >() );
+    EXPECT_TRUE( iLib1->at< MyBlock1 >( 0 )->leInt() == 123 );
+    EXPECT_TRUE( iLib1->at< MyBlock1 >( 0 )->laString() == "Blabla" );
+    EXPECT_TRUE( iLib1->at< MyBlock1 >( 0 )->leCustomType().laString ==
+                 "Ahahah" );
+    EXPECT_TRUE( iLib1->at< MyBlock1 >( 0 )->leCustomType().leInt32 == 254 );
+
+    ASSERT_TRUE( iLib1->at( 1 )->fastInherits< MyLibrary >() );
+    EXPECT_TRUE( iLib1->at< MyLibrary >( 1 )->size() == 1 );
+    ASSERT_TRUE(
+        iLib1->at< MyLibrary >( 1 )->at( 0 )->fastInherits< MyBlock1 >() );
+    EXPECT_TRUE(
+        iLib1->at< MyLibrary >( 1 )->at< MyBlock1 >( 0 )->leInt() == 456 );
+    EXPECT_TRUE( iLib1->at< MyLibrary >( 1 )->at< MyBlock1 >( 0 )->laString() ==
+                 "Tududu" );
+
+    lib1->destroy();
+    iLib1->destroy();
 }
