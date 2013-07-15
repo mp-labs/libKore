@@ -144,3 +144,18 @@ TEST( LibraryTest, SwapBlocks )
     EXPECT_TRUE( block1.index() == 0 );
     EXPECT_TRUE( block2.index() == 1 );
 }
+
+TEST( CustomTypeTest, ToAndFromVariant )
+{
+    MyCustomType myType;
+    myType.laString = "Hello !";
+    myType.leInt32 = 55;
+
+    QVariant v = QVariant::fromValue( myType );
+    EXPECT_TRUE( v.isValid() );
+    EXPECT_TRUE( v.userType() == qRegisterMetaType< MyCustomType >() );
+
+    MyCustomType myType2 = v.value< MyCustomType >();
+    EXPECT_TRUE( myType.laString == myType2.laString );
+    EXPECT_TRUE( myType.leInt32 == myType2.leInt32 );
+}
