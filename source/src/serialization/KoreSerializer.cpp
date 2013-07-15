@@ -475,14 +475,12 @@ int ReadBlockProperties( Context& ctx, Block* block )
         }
         else if( prop.userType() >= QMetaType::User )
         {
-            const qint64 variantStartPos = ctx.device->pos();
-
             // Custom type, retrieve it's module and in module meta type id
             quint16 moduleId;
-            quint16 type;
+            quint16 moduleType;
 
             stream >> moduleId;
-            stream >> type;
+            stream >> moduleType;
 
             const Module* module = ctx.getModule( moduleId );
             if( K_NULL == module )
