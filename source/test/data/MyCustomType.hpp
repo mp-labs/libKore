@@ -25,48 +25,27 @@
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "MyModule.hpp"
-#include "MyCustomType.hpp"
+#ifndef _data_MyCustomType_hpp_
+#define _data_MyCustomType_hpp_
 
-#define K_MODULE_TYPES_LIST \
-    K_MODULE_REGISTER_META_TYPE( DataTestModule::MyCustomType )
+#include <QtCore/QMetaType>
 
-#include <plugin/ModuleMacros.hpp>
-K_MODULE_IMPL
-
-using namespace DataTestModule;
-
-namespace
+namespace DataTestModule
 {
-static bool loadModule = MyModule::StaticLoad();
+
+struct MyCustomType
+{
+    QString laString;
+    qint32 leInt32;
+};
+
 }
 
-QString MyModule::id() const
-{
-    return QStringLiteral( "net.mp-labs.test.DataTestModule" );
-}
+Q_DECLARE_METATYPE( DataTestModule::MyCustomType )
 
-QString MyModule::name() const
-{
-    return QStringLiteral( "DataTestModule" );
-}
+QDataStream& operator << ( QDataStream& stream,
+                           const DataTestModule::MyCustomType& myType );
+QDataStream& operator >> ( QDataStream& stream,
+                           DataTestModule::MyCustomType& myType );
 
-QString MyModule::author() const
-{
-    return QStringLiteral( "Moving Pixel Labs" );
-}
-
-QString MyModule::url() const
-{
-    return QStringLiteral( "http://www.mp-labs.net" );
-}
-
-QString MyModule::version() const
-{
-    return QStringLiteral( "0.0.0 test" );
-}
-
-bool MyModule::StaticLoad()
-{
-    return moduleInstance->load();
-}
+#endif  // _data_MyCustomType_hpp_
