@@ -370,29 +370,19 @@ int WriteBlockProperties( Context& ctx, const Block* block )
             // Write the property index
             stream << static_cast< quint16 >( prop.propertyIndex() );
 
-            const qint64 variantStartPos = ctx.device->pos();
-
-            // Write the data
-            stream << variant;
-
-            const qint64 variantEndPos = ctx.device->pos();
-
-            // Seek back at the beginning of the data
-            if( ! ctx.device->seek( variantStartPos ) )
-            {
-                return TreeSerializer::SeekFailed;
-            }
-
-            // Overwrite the QVariant's type quint32 w/ two quint16, one for
-            // the module index in the metadata, and the other for the type ID
-            // within the module
+            // Write two quint16, one for the module index in the metadata,
+            // and the other for the type ID within the module
             stream << ctx.getModuleIndex( module );
             stream << type;
 
-            // Seek back at the end position of the variant to continue
-            if( ! ctx.device->seek( variantEndPos ) )
+            // Write the data
+            if( ! QMetaType::save( stream,
+                                   prop.userType(),
+                                   variant.constData() ) )
             {
-                return TreeSerializer::SeekFailed;
+                ctx.monitor->event( TreeSerializer::UnknownModuleUserType,
+                                    QLatin1String( prop.typeName() ) );
+                return TreeSerializer::UnknownModuleUserType;
             }
         }
         else
@@ -460,7 +450,7 @@ int ReadBlockProperties( Context& ctx, Block* block )
 
         QMetaProperty prop = block->metaBlock()->property( propertyIdx );
 
-        const int propType = static_cast< int >( prop.type() );
+        int propType = static_cast< int >( prop.type() );
 
         QVariant variant;
 
@@ -509,8 +499,8 @@ int ReadBlockProperties( Context& ctx, Block* block )
                 return TreeSerializer::UnregisteredModuleUserType;
             }
 
-            int metaType = module->userTypeIdForModuleTypeId( type );
-            if( -1 == metaType )
+            propType = module->userTypeIdForModuleTypeId( moduleType );
+            if( QMetaType::UnknownType == propType )
             {
                 // Notify the client of the error
                 if( K_NULL != ctx.monitor )
@@ -523,15 +513,16 @@ int ReadBlockProperties( Context& ctx, Block* block )
                 return TreeSerializer::UnknownModuleUserType;
             }
 
-            // Seek to the variant beginning in order to...
-            ctx.device->seek( variantStartPos );
-
-            // ...overwrite the serialized QVariant's type, and set it to the
-            // current proper runtime meta type id
-            stream << static_cast< quint32 >( metaType );
+            // Create a variant with the proper type
+            variant = QVariant( propType, K_NULL );
 
             // Read the data
-            stream >> variant;
+            if( ! QMetaType::load( stream, propType, variant.data() ) )
+            {
+                ctx.monitor->event( TreeSerializer::CustomPropertyReadFailed,
+                                    QLatin1String( prop.typeName() ) );
+                return TreeSerializer::CustomPropertyReadFailed;
+            }
         }
         else
         {
