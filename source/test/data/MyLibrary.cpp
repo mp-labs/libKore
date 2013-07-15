@@ -37,6 +37,6 @@ K_BLOCK_IMPLEMENTATION
 using namespace DataTestModule;
 
 MyLibrary::MyLibrary( kuint64 flags )
-    : Library( flags )
+    : Library( flags | Serializable )
 {
 }
