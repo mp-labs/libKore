@@ -932,7 +932,7 @@ int KoreSerializer::inflate( QIODevice* device,
 
     if( K_NULL == root )
     {
-        qWarning( "Could not deserialize root " );
+        qWarning( "Could not inflate root Block" );
         return UnknownRootBlockType;
     }
 
