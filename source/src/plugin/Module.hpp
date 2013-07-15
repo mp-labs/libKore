@@ -79,7 +79,8 @@ protected:
 
 private:
     QList< Loadable::Instantiator > _instantiators;
-    QHash< int, quint16 >           _types;
+    QHash< int, quint16 >           _metaToModuleHash;
+    QHash< quint16, int >           _moduleToMetaHash;
 };
 
 }}
@@ -95,4 +96,5 @@ private:
         static Kore::plugin::Module* PrivateInstance();
 
 #define K_MODULE_REGISTER_META_TYPE( type ) \
-    registerModuleType( qMetaTypeId< type >(), moduleTypeIdx++ );
+    registerModuleType( qMetaTypeId< type >(), moduleTypeIdx++ );\
+    qRegisterMetaTypeStreamOperators< type >();
