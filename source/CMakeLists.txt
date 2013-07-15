@@ -27,7 +27,6 @@ set( Kore_HDRS      # data
                     src/data/BlockMacros.hpp
                     src/data/BlockSettings.hpp
                     src/data/LibraryT.hpp
-                    src/data/PointerTypes.hpp
 
                     # event
                     src/event/ErrorEvent.hpp

@@ -29,7 +29,6 @@
 
 #include <KoreTypes.hpp>
 #include <KoreMacros.hpp>
-#include <data/PointerTypes.hpp>
 
 #include <QtCore/QObject>
 #include <QtCore/QVariant>
