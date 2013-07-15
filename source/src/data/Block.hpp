@@ -127,6 +127,16 @@ public:
 
     virtual ~Block();
 
+    /*!
+     * @brief Convert to type, no check made simply avoid typing static_cast
+     *        each time.
+     */
+    template< typename T >
+    inline T* to();
+
+    template< typename T >
+    inline const T* to() const;
+
 public:
     /*!
      * @property Block::index

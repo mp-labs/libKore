@@ -25,6 +25,18 @@
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+template< typename T >
+inline T* Kore::data::Block::to()
+{
+    return static_cast< T* >( this );
+}
+
+template< typename T >
+inline const T* Kore::data::Block::to() const
+{
+    return static_cast< const T* >( this );
+}
+
 inline kint Kore::data::Block::index() const
 {
     return _index;
