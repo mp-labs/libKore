@@ -449,6 +449,17 @@ int ReadBlockProperties( Context& ctx, Block* block )
         stream >> propertyIdx;
 
         QMetaProperty prop = block->metaBlock()->property( propertyIdx );
+        if( ! prop.isValid() )
+        {
+            // Notify the user
+            if( K_NULL != ctx.monitor )
+            {
+                ctx.monitor->event( TreeSerializer::InvalidBlockProperty,
+                                    QString( "%1 @ %2" ).arg( prop.typeName() )
+                                                        .arg( propertyIdx ) );
+            }
+            return TreeSerializer::InvalidBlockProperty;
+        }
 
         int propType = static_cast< int >( prop.type() );
 
