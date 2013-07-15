@@ -1,6 +1,8 @@
 
 include_directories( ${Qt5Core_INCLUDE_DIRS} )
 
+set( DATA_TEST_MODULE_HDRS      data/MyCustomType.hpp )
+
 set( DATA_TEST_MODULE_MOC_HDRS  data/MyBlock.hpp
                                 data/MyBlock1.hpp
                                 data/MyBlock2.hpp
@@ -10,12 +12,14 @@ set( DATA_TEST_MODULE_MOC_HDRS  data/MyBlock.hpp
 set( DATA_TEST_MODULE_SRCS  data/MyBlock.cpp
                             data/MyBlock1.cpp
                             data/MyBlock2.cpp
+                            data/MyCustomType.cpp
                             data/MyLibrary.cpp
                             data/MyModule.cpp )
 
 qt5_wrap_cpp( DATA_TEST_MODULE_MOC_SRCS ${DATA_TEST_MODULE_MOC_HDRS} )
 
-add_library( DataTestModule STATIC  ${DATA_TEST_MODULE_MOC_HDRS}
+add_library( DataTestModule STATIC  ${DATA_TEST_MODULE_HDRS}
+                                    ${DATA_TEST_MODULE_MOC_HDRS}
                                     ${DATA_TEST_MODULE_MOC_SRCS}
                                     ${DATA_TEST_MODULE_SRCS} )
 
