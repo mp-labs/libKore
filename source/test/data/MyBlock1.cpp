@@ -37,7 +37,7 @@ K_BLOCK_IMPLEMENTATION
 using namespace DataTestModule;
 
 MyBlock1::MyBlock1( kuint64 extraFlags )
-    : MyBlock( extraFlags )
+    : MyBlock( extraFlags | Serializable )
     , _leInt( 0 )
 {
 }
@@ -60,4 +60,19 @@ const QString& MyBlock1::laString() const
 void MyBlock1::setLaString( const QString& str )
 {
     _laString = str;
+}
+
+const MyCustomType& MyBlock1::leCustomType() const
+{
+    return _leCustomType;
+}
+
+MyCustomType& MyBlock1::leCustomType()
+{
+    return _leCustomType;
+}
+
+void MyBlock1::setLeCustomType( const MyCustomType& type )
+{
+    _leCustomType = type;
 }

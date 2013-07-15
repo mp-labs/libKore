@@ -25,9 +25,10 @@
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "MyBlock.hpp"
-
 #pragma once
+
+#include "MyBlock.hpp"
+#include "MyCustomType.hpp"
 
 namespace DataTestModule
 {
@@ -39,6 +40,8 @@ class MyBlock1 : public MyBlock
     Q_PROPERTY( int leInt MEMBER _leInt STORED ( _leInt != 0 ) )
     Q_PROPERTY( QString laString
                 MEMBER _laString STORED ( ! _laString.isEmpty() ) )
+    Q_PROPERTY( DataTestModule::MyCustomType leCustomType
+                READ leCustomType WRITE setLeCustomType STORED true )
 
     K_BLOCK
 
@@ -51,9 +54,14 @@ public:
     const QString& laString() const;
     void setLaString( const QString& str );
 
+    const MyCustomType& leCustomType() const;
+    void setLeCustomType( const MyCustomType& type );
+    MyCustomType& leCustomType();
+
 private:
-    int     _leInt;
-    QString _laString;
+    int          _leInt;
+    QString      _laString;
+    MyCustomType _leCustomType;
 };
 
 }
