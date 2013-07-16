@@ -164,3 +164,133 @@ TEST( SerializationTest, SerializeTree )
     delete lib1;
     delete iLib1;
 }
+
+TEST( SerializationTest, SerializeBigTree128 )
+{
+    const int childrenNb = 128;
+
+    MyLibrary* lib = K_BLOCK_CREATE_INSTANCE( MyLibrary );
+
+    for( int i = 0; i < childrenNb; ++i )
+    {
+        MyBlock1* block = K_BLOCK_CREATE_INSTANCE( MyBlock1 );
+        lib->addBlock( block );
+    }
+
+    ASSERT_TRUE( lib->size() == childrenNb );
+
+    // Now serialize
+    QByteArray buffer;
+    QBuffer device( & buffer );
+    device.open( QIODevice::ReadWrite );
+
+    int err;
+
+    KoreSerializer serializer;
+    err = serializer.deflate( & device, lib, K_NULL );
+    ASSERT_TRUE( KoreSerializer::NoError == err ) << "Error code: " << err;
+
+    // Reset...
+    device.seek( 0 );
+
+    Block* inflatedBlock;
+    err = serializer.inflate( & device, & inflatedBlock, K_NULL );
+    ASSERT_TRUE( KoreSerializer::NoError == err ) << "Error code: " << err;
+
+    ASSERT_TRUE( inflatedBlock->fastInherits< MyLibrary >() );
+
+    MyLibrary* iLib = inflatedBlock->to< MyLibrary >();
+
+    ASSERT_TRUE( iLib->size() == childrenNb ) << iLib->size()
+                                              << " child block(s)";
+
+    delete lib;
+    delete iLib;
+}
+
+TEST( SerializationTest, SerializeBigTree512 )
+{
+    const int childrenNb = 512;
+
+    MyLibrary* lib = K_BLOCK_CREATE_INSTANCE( MyLibrary );
+
+    for( int i = 0; i < childrenNb; ++i )
+    {
+        MyBlock1* block = K_BLOCK_CREATE_INSTANCE( MyBlock1 );
+        lib->addBlock( block );
+    }
+
+    ASSERT_TRUE( lib->size() == childrenNb );
+
+    // Now serialize
+    QByteArray buffer;
+    QBuffer device( & buffer );
+    device.open( QIODevice::ReadWrite );
+
+    int err;
+
+    KoreSerializer serializer;
+    err = serializer.deflate( & device, lib, K_NULL );
+    ASSERT_TRUE( KoreSerializer::NoError == err ) << "Error code: " << err;
+
+    // Reset...
+    device.seek( 0 );
+
+    Block* inflatedBlock;
+    err = serializer.inflate( & device, & inflatedBlock, K_NULL );
+    ASSERT_TRUE( KoreSerializer::NoError == err ) << "Error code: " << err;
+
+    ASSERT_TRUE( inflatedBlock->fastInherits< MyLibrary >() );
+
+    MyLibrary* iLib = inflatedBlock->to< MyLibrary >();
+
+    ASSERT_TRUE( iLib->size() == childrenNb ) << iLib->size()
+                                              << " child block(s)";
+
+    delete lib;
+    delete iLib;
+}
+
+
+TEST( SerializationTest, SerializeBigTree70000 )
+{
+    const int childrenNb = 70000;
+
+    MyLibrary* lib = K_BLOCK_CREATE_INSTANCE( MyLibrary );
+
+    for( int i = 0; i < childrenNb; ++i )
+    {
+        MyBlock1* block = K_BLOCK_CREATE_INSTANCE( MyBlock1 );
+        lib->addBlock( block );
+    }
+
+    ASSERT_TRUE( lib->size() == childrenNb );
+
+    // Now serialize
+    QByteArray buffer;
+    QBuffer device( & buffer );
+    device.open( QIODevice::ReadWrite );
+
+    int err;
+
+    KoreSerializer serializer;
+    err = serializer.deflate( & device, lib, K_NULL );
+    ASSERT_TRUE( KoreSerializer::NoError == err ) << "Error code: " << err;
+
+    // Reset...
+    device.seek( 0 );
+
+    Block* inflatedBlock;
+    err = serializer.inflate( & device, & inflatedBlock, K_NULL );
+    ASSERT_TRUE( KoreSerializer::NoError == err ) << "Error code: " << err;
+
+    ASSERT_TRUE( inflatedBlock->fastInherits< MyLibrary >() );
+
+    MyLibrary* iLib = inflatedBlock->to< MyLibrary >();
+
+    ASSERT_TRUE( iLib->size() == childrenNb ) << iLib->size()
+                                              << " child block(s)";
+
+    delete lib;
+    delete iLib;
+}
