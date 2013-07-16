@@ -147,7 +147,7 @@ if( APPLE )
         ${KORE_TARGET} PROPERTIES
         COMPILE_DEFINITIONS "_K_BUILD_KORE;_K_MACX;${DEBUG_DEFINES}"
         COMPILE_DEFINITIONS "_KORE_VERSION=\"${Kore_VERSION_STRING}\""
-        COMPILE_FLAGS "-fno-common -msse"
+        COMPILE_FLAGS "-fno-common -msse -W -Wall"
         VERSION "${Kore_VERSION}" )
 # Windows specifics
 elseif( WIN32 )
