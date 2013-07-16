@@ -71,7 +71,7 @@ QString MetaBlock::blockClassName() const
     return QLatin1String( _blockMetaObject->className() );
 }
 
-QMetaProperty MetaBlock::property( kint property ) const
+QMetaProperty MetaBlock::blockMetaProperty( kint property ) const
 {
     return _blockMetaObject->property( property );
 }
