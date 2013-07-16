@@ -106,19 +106,21 @@ void Block::index( kint idx )
 
 void Block::library( Library* lib )
 {
-    if( hasParent() )
+    Library* parent = library();
+    if( K_NULL != parent )
     {
         // We test whether the Block already belongs to a Library
         // if that Library is currently removing this Block, there is no need
         // to perform further removal. (tricky one :P)
-        if( -1 != _index )
+        if( ! checkFlag( IsBeingRemoved ) )
         {
-            // The index is valid: the library is not removing us, we are
-            // removing ourselves from the library!
-            _index = -1; // Make sure the library knows that WE are going!
+            // The library is not removing us, we are removing ourselves from
+            // the library!
+            // Make sure the library knows that WE are going!
+            addFlags( IsBeingRemoved );
             // Here the current library is not aware that the block is about to
             // change of owner.
-            library()->removeBlock( this );
+            parent->removeBlock( this );
         }
         else if( lib == K_NULL )
         {
@@ -132,7 +134,19 @@ void Block::library( Library* lib )
         emit blockInserted();
     }
 
-    setParent( lib ); // Qt threading, tree deletion and so on...
+    // Check if we are being deleted as there is a big performance cost of
+    // setting the parent to K_NULL here.
+    bool isBeingInserted = ( K_NULL != lib );
+    bool isBeingDestroyed =
+        ( ! isBeingInserted ) && ( K_NULL != parent ) &&
+        ( ! parent->isBeingDeleted() );
+
+    if( isBeingInserted || ( ! isBeingDestroyed ) )
+    {
+        // Qt threading, tree deletion and so on...
+        setParent( lib );
+    }
+
     _library = lib;
 }
 

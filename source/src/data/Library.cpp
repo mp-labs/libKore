@@ -106,7 +106,7 @@ kint Library::totalSize() const
     return size;
 }
 
-void Library::optimize( int cause )
+void Library::optimize( int )
 {
     QList< Block* > list;
     list.reserve( _blocks.size() );
@@ -152,20 +152,23 @@ void Library::removeBlock( Block* b )
 {
     K_ASSERT( _blocks.contains( b ) )
 
-    // We cannot rely on the b->index() !
-    const kint index = _blocks.indexOf( b );
+    const kint index = b->index();
     emit removingBlock( index );
     _blocks.removeAt( index );
     // Reindex the blocks from the right offset...
     indexBlocks( index );
-    if( b->index() == index )
+
+    if( ! b->checkFlag( IsBeingRemoved ) )
     {
         // WE are removing the block, the block is not removing itself from us
-        // Important to indicate to the block that WE are removing it by
-        // setting index to -1
-        b->index( -1 );
+        // Important to indicate to the block that WE are removing it
+        b->addFlags( IsBeingRemoved );
         b->library( K_NULL );
     }
+
+    // In every case, update the block's index
+    b->index( -1 );
+
     emit blockRemoved( index );
 }
 
