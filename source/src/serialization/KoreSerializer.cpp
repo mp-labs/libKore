@@ -59,6 +59,38 @@ using namespace Kore::serialization;
 
 namespace {
 
+void WriteVariableLength32( QDataStream& stream, quint32 value )
+{
+    quint32 lVal;
+    quint8 val;
+
+    for( lVal = value; lVal > 0x7f; lVal >>= 7 )
+    {
+        val = ( ( lVal & 0x7f ) | 0x80 );
+        stream << val;
+    }
+    val = lVal & 0x7f;
+    stream << val;
+}
+
+quint32 ReadVariableLength32( QDataStream& stream )
+{
+    quint32 result = 0x0;
+    quint8 val;
+
+    int offset = 0;
+
+    for( stream >> val; val & 0x80; stream >> val )
+    {
+        result |= ( ( val & 0x7f ) << offset );
+        offset += 7;
+    }
+
+    result |= ( ( val & 0x7f ) << offset );
+
+    return result;
+}
+
 struct Context
 {
     Context( QByteArray* buf, QIODevice* dev, TreeSerializerMonitor* mon )
