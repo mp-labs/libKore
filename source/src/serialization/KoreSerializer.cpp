@@ -111,10 +111,6 @@ struct Context
     QList< const MetaBlock* > metaBlocksList;
     QMap< const MetaBlock*, quint32 > metaBlocks;
 
-    QStringList modulesIds;
-    QList< const Module* > modulesList;
-    QMap< const Module*, quint16 > modules;
-
     quint32 getMetaBlockIndex( const MetaBlock* mb )
     {
         quint32 index = metaBlocks.value( mb, 0xffffffff );
@@ -131,23 +127,6 @@ struct Context
     {
         return metaBlocksList.value( index, K_NULL );
     }
-
-    quint16 getModuleIndex( const Module* module )
-    {
-        quint16 index = modules.value( module, 0xffff );
-        if( 0xffff == index )
-        {
-            index = modulesList.size();
-            modulesList.append( module );
-            modules.insert( module, index );
-        }
-        return index;
-    }
-
-    const Module* getModule( quint16 index )
-    {
-        return modulesList.value( index, K_NULL );
-    }
 };
 
 int WriteMetaData( Context& ctx )
@@ -157,22 +136,16 @@ int WriteMetaData( Context& ctx )
 
     CREATE_STREAM( stream, ctx.device );
 
-    // Write the modules metadata
-    stream << static_cast< quint16 >( ctx.modulesList.size() );
-    for( int i = 0; i < ctx.modulesList.size(); ++i )
-    {
-        stream << ctx.modulesList.at( i )->id().toLatin1();
-    }
-
     // Write the metablocks metadata
-    stream << static_cast< quint32 >( ctx.metaBlocksList.size() );
+    WriteVariableLength32( stream, ctx.metaBlocksList.size() );
     for( int i = 0; i < ctx.metaBlocksList.size(); ++i )
     {
         stream << ctx.metaBlocksList.at( i )->blockClassName().toLatin1();
+        // TODO: Add version and compatibility version
     }
 
     // Write the number of serialized blocks
-    stream << ctx.blocksCount;
+    WriteVariableLength32( stream, ctx.blocksCount );
 
     // Write the size of the metadata
     stream << static_cast< quint32 >( ctx.device->pos() - startPos );
@@ -225,46 +198,13 @@ int ReadMetaData( Context& ctx )
         return TreeSerializer::SeekFailed;
     }
 
-    // Modules
-    quint16 modulesCount;
-    stream >> modulesCount;
-
-    // Reserve the space for the modules
-    ctx.modulesIds.reserve( modulesCount );
-    ctx.modulesList.reserve( modulesCount );
-
-    for( quint16 i = 0; i < modulesCount; ++i )
-    {
-        QByteArray moduleId;
-        stream >> moduleId;
-
-        QString moduleIdStr = QString::fromLatin1( moduleId, moduleId.size() );
-
-        ctx.modulesIds.append( moduleIdStr );
-
-        const Module* module = KoreEngine::GetModule( moduleIdStr );
-
-        if( ( K_NULL == module ) &&
-            ( K_NULL != ctx.monitor ) &&
-            ( ! ctx.monitor->event( TreeSerializer::UnknownModuleType,
-                                    moduleIdStr ) ) )
-        {
-            return TreeSerializer::UnknownModuleType;
-        }
-
-        // Store in the list (even if NULL)
-        ctx.modulesList.append( module );
-    }
-
     // Metablocks
-    quint32 metaBlocksCount;
-    stream >> metaBlocksCount;
-
+    quint32 metaBlocksCount = ReadVariableLength32( stream );
     // Reserve the space for the blocks (OK since indices are integers)
     ctx.metaBlocksNames.reserve( metaBlocksCount );
     ctx.metaBlocksList.reserve( metaBlocksCount );
 
-    for( qint32 i = 0; i < metaBlocksCount; ++i )
+    for( quint32 i = 0; i < metaBlocksCount; ++i )
     {
         QByteArray blockClass;
         stream >> blockClass;
@@ -289,7 +229,7 @@ int ReadMetaData( Context& ctx )
     }
 
     // Read the number of serialized blocks
-    stream >> ctx.blocksCount;
+    ctx.blocksCount = ReadVariableLength32( stream );
 
     // Restore to the initial position
     if( ! ctx.device->seek( startPos ) )
@@ -311,129 +251,84 @@ int WriteBlockProperties( Context& ctx, const Block* block )
 
     CREATE_STREAM( stream, ctx.device );
 
-    // Write a blank properties size
+    // Write a blank properties count
+    // Using quint16 -> 65535 possible properties... should be enough or a
+    // single block !
     stream << quint16( 0 );
 
     quint16 propertiesCount = 0;
 
-    for	( kint i = Block::staticMetaObject.propertyOffset();
-          i < block->metaObject()->propertyCount();
-          ++i )
+    const QMetaObject* mo = block->metaObject();
+
+    // 1 because QObject has the name property that is not serializable...
+    for( int i = 1; i < mo->propertyCount(); ++i )
     {
-        QMetaProperty prop = block->metaBlock()->property( i );
-        if( ! prop.isStored( block ) )
+        // Retrieve the property from the MetaBlock, allowing on the fly
+        // replacement by client code.
+        QMetaProperty prop = block->metaBlock()->blockMetaProperty( i );
+
+        // Check if the property is valid and should be stored
+        if( ( ! prop.isValid() ) || ( ! prop.isStored( block ) ) )
         {
             continue;
         }
 
+        // Retrieve the property type
+        const int propType =
+            ( static_cast< int >( prop.type() ) < QMetaType::User )
+                ? prop.type()
+                : prop.userType();
+
+        // Check if the property's type is properly registered
+        if( QMetaType::UnknownType == propType )
+        {
+            if( ( K_NULL != ctx.monitor ) &&
+                ! ctx.monitor->event( TreeSerializer::UnknownCustomType,
+                                      QString( "%1 @ %2" )
+                                        .arg( mo->className() )
+                                        .arg( prop.name() ) ) )
+            {
+                return TreeSerializer::UnknownCustomType;
+            }
+            else
+            {
+                // Default bahavior, or the user wants to skip this property
+                continue;
+            }
+        }
+
+        // Retrieve the value
         QVariant variant = prop.read( block );
 
-        // Do not serialize NULL variants
+        // Do not serialize NULL variants (useless?)
         if( variant.isNull() )
         {
             continue;
         }
 
-        const int propType = static_cast< int >( prop.type() );
+        // Write the property index
+        WriteVariableLength32( stream, prop.propertyIndex() );
 
-        if( ( propType > QMetaType::UnknownType ) &&
-            ( propType < QMetaType::User ) )
+        // Write the data
+        switch( propType )
         {
-            // Write the property index
-            stream << static_cast< quint16 >( prop.propertyIndex() );
-
-            switch( propType )
-            {
-            case QMetaType::QString:
-                // For strings, encode to UTF-8  byte array to save space.
-                stream << variant.toString().toUtf8();
-                break;
-            default:
-                // Native type, simply write the data
-                stream << variant;
-                break;
-            }
-        }
-        else if( prop.userType() >= QMetaType::User )
-        {
-            // Custom type, query + store it's module and in module meta type id
-            const Module* module;
-            module = KoreEngine::GetModuleForUserType( prop.userType() );
-            if( K_NULL == module )
-            {
-                if( ( K_NULL != ctx.monitor ) &&
-                    ! ctx.monitor->event(
-                            TreeSerializer::UnregisteredModuleUserType,
-                            QLatin1String( prop.typeName() ) ) )
-                {
-                    return TreeSerializer::UnregisteredModuleUserType;
-                }
-                else
-                {
-                    qWarning( "Skipping property: %s with type %s of Block "
-                              "type %s because it was not registered",
-                              prop.name(),
-                              prop.typeName(),
-                              block->metaObject()->className() );
-                    continue;
-                }
-            }
-
-            quint16 type = module->moduleTypeIdForUserTypeId( prop.userType() );
-            if( 0xffff == type )
-            {
-                if( ( K_NULL != ctx.monitor ) &&
-                    ! ctx.monitor->event( TreeSerializer::UnknownModuleUserType,
-                                          QLatin1String( prop.typeName() ) ) )
-                {
-                    return TreeSerializer::UnknownModuleUserType;
-                }
-                else
-                {
-                    qWarning( "Skipping property: %s with type %s of Block "
-                              "type %s because it was mis-registered",
-                              prop.name(),
-                              prop.typeName(),
-                              block->metaObject()->className() );
-                    continue;
-                }
-            }
-
-            // Write the property index
-            stream << static_cast< quint16 >( prop.propertyIndex() );
-
-            // Write two quint16, one for the module index in the metadata,
-            // and the other for the type ID within the module
-            stream << ctx.getModuleIndex( module );
-            stream << type;
-
+        case QMetaType::QString:
+            // For strings, encode to an UTF-8 QByteArray to save space.
+            stream << variant.toString().toUtf8();
+            break;
+        default:
             // Write the data
-            if( ! QMetaType::save( stream,
-                                   prop.userType(),
-                                   variant.constData() ) )
+            if( ! QMetaType::save( stream, propType, variant.constData() ) )
             {
-                ctx.monitor->event( TreeSerializer::UnknownModuleUserType,
-                                    QLatin1String( prop.typeName() ) );
-                return TreeSerializer::UnknownModuleUserType;
+                if( K_NULL != ctx.monitor )
+                {
+                    ctx.monitor->event( TreeSerializer::MetaTypeSaveFailed,
+                                        QLatin1String( prop.typeName() ) );
+                }
+                qDebug( "PropertyWriteFailed !" );
+                return TreeSerializer::MetaTypeSaveFailed;
             }
-        }
-        else
-        {
-            if( ( K_NULL != ctx.monitor ) &&
-                ! ctx.monitor->event( TreeSerializer::UnknownUserType,
-                                      QLatin1String( prop.typeName() ) ) )
-            {
-                return TreeSerializer::UnknownUserType;
-            }
-            else
-            {
-                qWarning( "Skipping property: %s with unknown type %s of Block "
-                          "type %s",
-                          prop.name(),
-                          prop.typeName(),
-                          block->metaObject()->className() );
-                continue;
-            }
+            break;
         }
 
         // Increment the count of serialized properties
@@ -470,6 +365,8 @@ int ReadBlockProperties( Context& ctx, Block* block )
 {
     CREATE_STREAM( stream, ctx.device );
 
+    const QMetaObject* mo = block->metaObject();
+
     // Retrieve the number of properties
     quint16 propertiesCount;
     stream >> propertiesCount;
@@ -477,105 +374,69 @@ int ReadBlockProperties( Context& ctx, Block* block )
     for	( quint16 i = 0; i < propertiesCount; ++i )
     {
         // Retrieve the index of the property
-        quint16 propertyIdx;
-        stream >> propertyIdx;
+        quint32 propertyIdx = ReadVariableLength32( stream );
 
-        QMetaProperty prop = block->metaBlock()->property( propertyIdx );
+        // Retrieve the property from the Metablock
+        QMetaProperty prop = block->metaBlock()->blockMetaProperty( propertyIdx );
         if( ! prop.isValid() )
         {
             // Notify the user
             if( K_NULL != ctx.monitor )
             {
                 ctx.monitor->event( TreeSerializer::InvalidBlockProperty,
-                                    QString( "%1 @ %2" ).arg( prop.typeName() )
-                                                        .arg( propertyIdx ) );
+                                    QString( "%1 @ %2" )
+                                        .arg( mo->className() )
+                                        .arg( propertyIdx ) );
             }
+            // And fail!
             return TreeSerializer::InvalidBlockProperty;
         }
 
-        int propType = static_cast< int >( prop.type() );
+        // Retrieve the property's type
+        const int propType =
+            ( static_cast< int >( prop.type() ) < QMetaType::User )
+                ? prop.type()
+                : prop.userType();
 
-        QVariant variant;
-
-        if( ( propType > QMetaType::UnknownType ) &&
-            ( propType < QMetaType::User ) )
-        {
-            switch( propType )
-            {
-            case QMetaType::QString:
-                // For strings parse an UTF-8 buffer
-                {
-                    QByteArray utf8;
-                    stream >> utf8;
-                    variant = QString::fromUtf8( utf8, utf8.size() );
-                }
-                break;
-            default:
-                // Qt native type, simply read the data
-                stream >> variant;
-                break;
-            }
-        }
-        else if( prop.userType() >= QMetaType::User )
-        {
-            // Custom type, retrieve it's module and in module meta type id
-            quint16 moduleId;
-            quint16 moduleType;
-
-            stream >> moduleId;
-            stream >> moduleType;
-
-            const Module* module = ctx.getModule( moduleId );
-            if( K_NULL == module )
-            {
-                // Notify the client of the error
-                if( K_NULL != ctx.monitor )
-                {
-                    ctx.monitor->event(
-                                TreeSerializer::UnregisteredModuleUserType,
-                                QLatin1String( prop.typeName() ) );
-                }
-
-                // Return error
-                return TreeSerializer::UnregisteredModuleUserType;
-            }
-
-            propType = module->userTypeIdForModuleTypeId( moduleType );
-            if( QMetaType::UnknownType == propType )
-            {
-                // Notify the client of the error
-                if( K_NULL != ctx.monitor )
-                {
-                    ctx.monitor->event( TreeSerializer::UnknownModuleUserType,
-                                        QLatin1String( prop.typeName() ) );
-                }
-
-                // Return error
-                return TreeSerializer::UnknownModuleUserType;
-            }
-
-            // Create a variant with the proper type
-            variant = QVariant( propType, K_NULL );
-
-            // Read the data
-            if( ! QMetaType::load( stream, propType, variant.data() ) )
-            {
-                ctx.monitor->event( TreeSerializer::CustomPropertyReadFailed,
-                                    QLatin1String( prop.typeName() ) );
-                return TreeSerializer::CustomPropertyReadFailed;
-            }
-        }
-        else
+        // Check if the type is properly registered
+        if( QMetaType::UnknownType == propType )
         {
             // Notify the user
             if( K_NULL != ctx.monitor )
             {
-                ctx.monitor->event( TreeSerializer::UnknownUserType,
-                                    QLatin1String( prop.typeName() ) );
+                ctx.monitor->event( TreeSerializer::UnknownCustomType,
+                                    QString( "%1 @ %2" )
+                                        .arg( mo->className() )
+                                        .arg( prop.name() ) );
             }
+            // And fail!
+            return TreeSerializer::UnknownCustomType;
+        }
 
-            // Return error
-            return TreeSerializer::UnknownUserType;
+        // Create a variant with the proper type
+        QVariant variant( propType, K_NULL );
+
+        switch( propType )
+        {
+        case QMetaType::QString:
+            // For strings parse an UTF-8 buffer
+            {
+                QByteArray utf8;
+                stream >> utf8;
+                variant = QString::fromUtf8( utf8, utf8.size() );
+            }
+            break;
+        default:
+            // Read the data
+            if( ! QMetaType::load( stream, propType, variant.data() ) )
+            {
+                ctx.monitor->event( TreeSerializer::MetaTypeLoadFailed,
+                                    QString( "%1 @ %2" )
+                                        .arg( mo->className() )
+                                        .arg( prop.name() ) );
+                return TreeSerializer::MetaTypeLoadFailed;
+            }
+            break;
         }
 
         // Finally, set the property on the block
@@ -583,7 +444,9 @@ int ReadBlockProperties( Context& ctx, Block* block )
         {
             if( ( K_NULL != ctx.monitor ) &&
                 ! ctx.monitor->event( TreeSerializer::BlockSetPropertyFailed,
-                                      QLatin1String( prop.typeName() ) ) )
+                                      QString( "%1 @ %2" )
+                                            .arg( mo->className() )
+                                            .arg( prop.name() ) ) )
             {
                 return TreeSerializer::BlockSetPropertyFailed;
             }
@@ -592,7 +455,7 @@ int ReadBlockProperties( Context& ctx, Block* block )
                 qWarning( "Failed to set property %s of type %s on Block %s",
                           prop.name(),
                           prop.typeName(),
-                          block->metaObject()->className() );
+                          mo->className() );
             }
         }
     }
@@ -807,7 +670,7 @@ int InflateBlock( Context& ctx, Block** block, int* childrenNb )
     int err = ReadBlockProperties( ctx, *block );
     if( TreeSerializer::NoError != err )
     {
-        ( *block )->destroy();
+        delete ( *block );
         *block = K_NULL;
         return err;
     }
@@ -1045,10 +908,10 @@ int KoreSerializer::inflate( QIODevice* device,
     err = NoError;
 
 cleanup:
-    if( ( NoError != err ) && ( K_NULL != root ) )
+    if( NoError != err )
     {
         // Do not leak the root if an error occured
-        root->destroy();
+        delete root;
     }
 
     return err;

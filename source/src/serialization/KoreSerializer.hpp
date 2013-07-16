@@ -42,6 +42,7 @@ public:
     virtual int inflate( QIODevice* device,
                          Kore::data::Block** block,
                          TreeSerializerMonitor* monitor ) const;
+
 };
 
 } /* serialization */ } /* Kore */
