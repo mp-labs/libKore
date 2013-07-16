@@ -101,8 +101,8 @@ void postEvent( QObject* target, int eventType )
 }
 
 Tasklet::Tasklet(kbool autoDelete)
-    : _autoDelete( autoDelete )
-    , _state( NotStarted )
+    : _state( NotStarted )
+    , _autoDelete( autoDelete )
 {
 }
 
