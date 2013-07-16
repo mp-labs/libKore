@@ -43,13 +43,12 @@ MetaBlock::MetaBlock( const MetaBlock* superMetaBlock, const QMetaObject* mo )
     : _blockMetaObject( mo )
     , _superMetaBlock( superMetaBlock )
 {
-    addFlags( System );
     blockName( tr( "MetaBlock for %1" ).arg( mo->className() ) );
 }
 
 void MetaBlock::library( Library* lib )
 {
-    Block::library( lib );
+    Loadable::library( lib );
 
     if( hasParent() )
     {

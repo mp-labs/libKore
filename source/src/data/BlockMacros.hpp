@@ -64,17 +64,9 @@
             if( NULL != b )\
             {\
                 InitializeBlock( b );\
-                SetBlockAllocated( b );\
                 blockInstancesCount.ref();\
             }\
             return b;\
-        }
-#   define __K_BLOCK_METHOD_DESTROY \
-        void destroyBlock( Block* b ) const\
-        {\
-            QCoreApplication::removePostedEvents( b );\
-            delete b;\
-            blockInstancesCount.deref();\
         }
 #else
 #   define __K_BLOCK_METHOD_CREATE \
@@ -83,12 +75,6 @@
             qFatal( "Can not instantiate virtual block "\
                     K_BLOCK_XSTR( K_BLOCK_TYPE ) );\
             return K_NULL;\
-        }
-#   define __K_BLOCK_METHOD_DESTROY \
-        virtual void destroyBlock( Block* b ) const\
-        {\
-            qFatal( "Can not destroy virtual block "\
-                    K_BLOCK_XSTR( K_BLOCK_TYPE ) );\
         }
 #endif
 
@@ -119,7 +105,7 @@
                         K_BLOCK_SUPER_TYPE::StaticMetaBlock(),\
                         & ( K_BLOCK_TYPE::staticMetaObject ) )\
             {\
-                addFlags( System );\
+                addFlags( Static );\
             }\
             \
             virtual bool canUnload() const\
@@ -128,8 +114,6 @@
             }\
             \
             __K_BLOCK_METHOD_CREATE\
-            \
-            __K_BLOCK_METHOD_DESTROY\
             \
             __K_BLOCK_METHOD_PROPERTY\
             \

@@ -75,8 +75,8 @@ TEST( SerializationTest, SerializeBlock )
     EXPECT_TRUE( block->laString() ==
                  inflatedBlock->to< MyBlock1 >()->laString() );
 
-    block->destroy();
-    inflatedBlock->destroy();
+    delete block;
+    delete inflatedBlock;
 }
 
 TEST( SerializationTest, SerializeTree )
@@ -161,6 +161,6 @@ TEST( SerializationTest, SerializeTree )
     EXPECT_TRUE( iLib1->at< MyLibrary >( 1 )->at< MyBlock1 >( 0 )->laString() ==
                  "Tududu" );
 
-    lib1->destroy();
-    iLib1->destroy();
+    delete lib1;
+    delete iLib1;
 }

@@ -39,7 +39,7 @@ using namespace Kore::plugin;
 
 Module::Module()
 {
-    addFlags( System );
+    addFlags( Static );
 }
 
 Module::~Module()

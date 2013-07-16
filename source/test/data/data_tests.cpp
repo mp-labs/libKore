@@ -43,7 +43,7 @@ TEST( BlockTest, MetaInstantiateBlock )
 {
     MyBlock* block = K_BLOCK_CREATE_INSTANCE( MyBlock );
     EXPECT_TRUE( NULL != block );
-    block->destroy();
+    delete block;
 }
 
 TEST( BlockTest, MetaBlockMetaObject )
@@ -85,7 +85,7 @@ TEST( LibraryTest, MetaInstantiateLibrary )
 {
     MyLibrary* lib = K_BLOCK_CREATE_INSTANCE( MyLibrary );
     EXPECT_TRUE( NULL != lib );
-    lib->destroy();
+    delete lib;
 }
 
 TEST( LibraryTest, AddBlock )

@@ -52,9 +52,9 @@ using namespace Kore::plugin;
 Q_GLOBAL_STATIC( KoreEngine, koreEngineInstance )
 
 KoreEngine::KoreEngine()
-    : _modules( Block::System )
+    : _modules( Block::Static )
 {
-    addFlags( System );
+    addFlags( Static );
 
     Q_ASSERT_X( ! koreEngineInstance.exists(),
                 "KoreEngine",

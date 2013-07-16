@@ -77,11 +77,6 @@ public:
     const MetaBlock* superMetaBlock() const;
 
 protected:
-    inline static void SetBlockAllocated( Block* b )
-    {
-        b->addFlags( Block::Allocated );
-    }
-
     inline static void InitializeBlock( Block* b )
     {
         b->initialize();
@@ -89,8 +84,6 @@ protected:
 
     kbool registerBlockExtension( BlockExtension* extension );
     void unregisterBlockExtension( BlockExtension* extension );
-
-    virtual void destroyBlock( Block* b ) const = K_NULL;
 
 private:
     void createPropertiesCache() const;

@@ -66,26 +66,22 @@ public:
      */
     enum Flags
     {
-        /// The block was allocated by its allocator
-        Allocated =         0x1 << 0,
-        /// The block was allocated using new
-        Newed =             0x1 << 1,
+        /// The block was allocated statically
+        Static =            0x1 << 0,
         /// The block is currently being deleted
-        IsBeingDeleted =    0x1 << 2,
+        IsBeingDeleted =    0x1 << 1,
+        /// The block is being removed from its data tree
+        IsBeingRemoved =    0x1 << 2,
         /// The block is Serializable: should be considered for serialization.
         Serializable =      0x1 << 3,
         /// The block is browsable, understand GUI navigable.
         Browsable =         0x1 << 4,
         /// The block is editable, users can modify it.
         Editable =          0x1 << 5,
-        /// The block is statically allocated, disables memory management
-        Static =            0x1 << 6,
-        /// The block is a system library statically allocated by the system
-        System =            Static,
         /// The block is owned by the system (can not be deleted by the user).
-        SystemOwned =       0x1 << 7,
+        SystemOwned =       0x1 << 6,
         /// MAX FLAG for subclasses flags
-        MAX_FLAG =          0x1 << 8,
+        MAX_FLAG =          0x1 << 7,
         /// MAX MAX FLAG to set the enumeration size (64 bits)
         MAX_MAX_FLAG =      0x1 << 63
     };
@@ -243,12 +239,6 @@ signals:
     void blockRemoved();
     void blockDeleted();
     void indexChanged( kint oldIndex, kint newIndex );
-
-public slots:
-    /*!
-     * @brief	Destroy the block.
-     */
-    virtual bool destroy();
 
 public:
     static QVariant DefaultBlockProperty( kint property );

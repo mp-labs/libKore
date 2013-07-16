@@ -53,13 +53,13 @@ KoreApplication::KoreApplication( kint argc, kchar** argv )
 
     // Create the memory manager first!!!
     _memoryManager = new SimpleMemoryManager();
-    _memoryManager->initialize( Block::System | Block::Newed );
+    _memoryManager->initialize( Block::SystemOwned );
 
     // Create the root library.
-    _rootLibrary = new Library( Block::System | Block::Newed );
+    _rootLibrary = new Library( Block::SystemOwned );
     _rootLibrary->blockName( "Root" );
 
-    Library* appLib = new Library( Block::System | Block::Newed );
+    Library* appLib = new Library( Block::SystemOwned );
     appLib->blockName( "Kore Internals" );
 
     _rootLibrary->addBlock( appLib );
@@ -74,7 +74,7 @@ KoreApplication::KoreApplication( kint argc, kchar** argv )
     KoreModule::PrivateInstance()->load();
 
     // Create the library that will hold the application data.
-    _dataLibrary = new Library( Block::System | Block::Newed );
+    _dataLibrary = new Library( Block::SystemOwned );
     _dataLibrary->blockName( "Data" );
     _rootLibrary->addBlock( _dataLibrary );
 
@@ -87,7 +87,7 @@ KoreApplication::~KoreApplication()
     qDebug( "Kore / Unloading KoreApplication" );
     // Deletes all registered engines and managers and data structures.
     // This call effectively cleans up all heap allocated memory.
-    _rootLibrary->destroy();
+    delete _rootLibrary;
 }
 
 const Library* KoreApplication::rootLibrary() const

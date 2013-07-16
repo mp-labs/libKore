@@ -44,6 +44,6 @@ K_TASKLET_IMPLEMENTATION
 TEST( TestBlock, Instantiate )
 {
     MyTasklet* b = K_BLOCK_CREATE_INSTANCE( MyTasklet );
-    EXPECT_TRUE( NULL != b );
-    b->destroy();
+    EXPECT_TRUE( K_NULL != b );
+    delete b;
 }

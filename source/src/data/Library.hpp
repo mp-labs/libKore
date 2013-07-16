@@ -43,8 +43,6 @@ public:
     Library( kuint64 extraFlags = 0 );
     virtual ~Library();
 
-    virtual bool destroy();
-
     void clear();
 
     template< typename T >

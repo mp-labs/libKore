@@ -203,7 +203,7 @@ void Tasklet::customEvent( QEvent* e )
     emit ended( _state );
     if( _autoDelete )
     {
-        destroy();
+        deleteLater();
     }
 }
 
