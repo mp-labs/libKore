@@ -63,17 +63,18 @@ public:
         RequiresRandomAccess,
         InvalidData,
         SeekFailed,
-        CustomPropertyWriteFailed,
-        CustomPropertyReadFailed,
-        BlockInstantiationFailed,
-        InvalidBlockProperty,
+
+        MetaTypeLoadFailed,
+        MetaTypeSaveFailed,
         BlockSetPropertyFailed,
+
         UnknownRootBlockType,
         UnknownBlockType,
-        UnknownModuleType,
-        UnknownUserType,
-        UnknownModuleUserType,
-        UnregisteredModuleUserType,
+        BlockInstantiationFailed,
+        UnknownCustomType,
+
+        InvalidBlockProperty,
+
         MAX_SERIALIZATION_ERROR
     };
 
