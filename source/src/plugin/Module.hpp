@@ -68,19 +68,13 @@ public:
     virtual QString url() const = K_VIRTUAL;
     virtual QString version() const = K_VIRTUAL;
 
-    int userTypeIdForModuleTypeId( quint16 moduleType ) const;
-    quint16 moduleTypeIdForUserTypeId( int userType ) const;
-
     void registerLoadable( Loadable::Instantiator instantiator );
 
 protected:
     virtual void registerModuleTypes() = K_VIRTUAL;
-    void registerModuleType( int qtMetaId, quint16 moduleId );
 
 private:
     QList< Loadable::Instantiator > _instantiators;
-    QHash< int, quint16 >           _metaToModuleHash;
-    QHash< quint16, int >           _moduleToMetaHash;
 };
 
 }}
@@ -96,5 +90,4 @@ private:
         static Kore::plugin::Module* PrivateInstance();
 
 #define K_MODULE_REGISTER_META_TYPE( type ) \
-    registerModuleType( qMetaTypeId< type >(), moduleTypeIdx++ );\
     qRegisterMetaTypeStreamOperators< type >();

@@ -99,28 +99,12 @@ void KoreEngine::RegisterModule( Module* module )
     // Register the block
     Instance()->_modules.addBlock( module );
     Instance()->_modulesHash.insert( module->id(), module );
-
-    // Register the module types
-    QHash< int, Module* >& moduleTypes = Instance()->_moduleTypes;
-    QList< int > types = module->_metaToModuleHash.keys();
-    for( int i = 0; i < types.size(); ++i )
-    {
-        moduleTypes.insert( types.at( i ), module );
-    }
 }
 
 void KoreEngine::UnregisterModule( Module* module )
 {
     // Unregister the block
     Instance()->_modulesHash.remove( module->id() );
-
-    // Unregister the module types
-    QHash< int, Module* >& moduleTypes = Instance()->_moduleTypes;
-    QList< int > types = module->_metaToModuleHash.keys();
-    for( int i = 0; i < types.size(); ++i )
-    {
-        moduleTypes.remove( types.at( i ) );
-    }
 }
 
 void KoreEngine::RegisterMetaBlock( MetaBlock* mb )

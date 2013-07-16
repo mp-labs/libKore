@@ -46,25 +46,9 @@ Module::~Module()
 {
 }
 
-int Module::userTypeIdForModuleTypeId( quint16 moduleType ) const
-{
-    return _moduleToMetaHash.value( moduleType, QMetaType::UnknownType );
-}
-
-quint16 Module::moduleTypeIdForUserTypeId( int metaTypeId ) const
-{
-    return _metaToModuleHash.value( metaTypeId, 0xffff );
-}
-
 void Module::registerLoadable( Loadable::Instantiator instantiator )
 {
     _instantiators.append( instantiator );
-}
-
-void Module::registerModuleType( int runtimeId, quint16 moduleId )
-{
-    _metaToModuleHash.insert( runtimeId, moduleId );
-    _moduleToMetaHash.insert( moduleId, runtimeId );
 }
 
 bool Module::load()

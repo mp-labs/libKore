@@ -43,8 +43,6 @@
     Q_GLOBAL_STATIC( K_MODULE_TYPE, moduleInstance )\
     void K_MODULE_TYPE::registerModuleTypes()\
     {\
-        quint16 moduleTypeIdx = 0;\
-        Q_UNUSED( moduleTypeIdx );\
         K_MODULE_TYPES_LIST\
     }\
     \
