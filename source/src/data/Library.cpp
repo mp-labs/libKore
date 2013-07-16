@@ -46,21 +46,21 @@ Library::Library( kuint64 extraFlags )
 
 Library::~Library()
 {
-    if( ! checkFlag( IsBeingDeleted ) )
-    {
-        destroy();
-    }
-}
-
-bool Library::destroy()
-{
-    // This library is being deleted, this flag will be checked when destroying
-    // its children.
     addFlags( IsBeingDeleted );
-    clear(); // Destroy all child blocks.
-    removeFlag( IsBeingDeleted );
 
-    return Block::destroy();
+    // Make a copy of the blocks...
+    QList< Block* > blocks = _blocks;
+
+    for( int i = 0; i < blocks.size(); ++i )
+    {
+        Block* b = blocks.at( i );
+        if( b->checkFlag( Static ) )
+        {
+            // Remove the block from the tree to avoid deleting it, this
+            // would cause an error as it was not newed.
+            removeBlock( b );
+        }
+    }
 }
 
 void Library::clear()
@@ -72,10 +72,23 @@ void Library::clear()
 
     emit clearing();
 
-    while( ! _blocks.isEmpty() )
+    // Make a copy of the blocks...
+    QList< Block* > blocks = _blocks;
+
+    for( int i = 0; i < blocks.size(); ++i )
     {
-        _blocks.last()->destroy();
+        Block* b = blocks.at( i );
+        // Remove the block from the tree
+        removeBlock( b );
+        if( ! b->checkFlag( Static ) )
+        {
+            // Delete the block
+            delete b;
+        }
     }
+
+    // Clear the blocks list
+    _blocks.clear();
 
     emit cleared();
 }
