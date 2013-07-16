@@ -36,6 +36,7 @@ class KoreApplication;
 
 class KoreExport KoreModule : public Kore::plugin::Module
 {
+    Q_OBJECT
     K_MODULE
 
     friend class KoreApplication;

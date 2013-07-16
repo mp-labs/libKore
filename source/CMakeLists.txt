@@ -49,7 +49,6 @@ set( Kore_HDRS      # data
 
                     # Kore
                     src/KoreApplication.hpp
-                    src/KoreModule.hpp
                     src/KoreMacros.hpp
                     src/KoreTypes.hpp )
 
@@ -73,7 +72,8 @@ set( Kore_MOC_HDRS  # data
                     src/plugin/PluginsManager.hpp
 
                     # Kore
-                    src/KoreEngine.hpp )
+                    src/KoreEngine.hpp
+                    src/KoreModule.hpp )
 
 # -- Mocced sources --
 qt5_wrap_cpp( Kore_MOC_SRCS ${Kore_MOC_HDRS} )
